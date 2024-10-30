@@ -1,5 +1,7 @@
 # code-tokenizer-md
 
+> Created to push creative limits.
+
 Process git repository files into markdown with token counting and sensitive data redaction.
 
 ## Overview
