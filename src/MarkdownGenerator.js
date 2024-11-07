@@ -159,7 +159,7 @@ export class MarkdownGenerator {
    */
   async getTodo() {
     try {
-      console.log('getting project todo');
+      console.log('Reading todo file');
       return await readFile('./todo', 'utf-8');
     } catch (error) {
       if (error.code === 'ENOENT') {
