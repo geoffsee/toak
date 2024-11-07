@@ -14,12 +14,22 @@
     "test": "echo \"No tests specified\" && exit 0",
     "prepublishOnly": "npm run build",
     "dev": "node ./src/cli.js",
-    "deploy:dev": "pnpm publish ."
+    "deploy:dev": "pnpm publish .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
+    "fix": "pnpm format && pnpm lint:fix"
   },
   "dependencies": {
     "llama3-tokenizer-js": "^1.0.0"
   },
   "peerDependencies": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint": "^9.14.0",
+    "globals": "^15.12.0",
+    "prettier": "^3.3.3"
   }
 }
