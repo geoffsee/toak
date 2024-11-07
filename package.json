@@ -1,6 +1,6 @@
 {
   "name": "code-tokenizer-md",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -12,7 +12,9 @@
   "scripts": {
     "build": "rm -rf dist && mkdir dist && cp src/*.js dist/",
     "test": "echo \"No tests specified\" && exit 0",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "dev": "node ./src/cli.js",
+    "deploy:dev": "pnpm publish ."
   },
   "dependencies": {
     "llama3-tokenizer-js": "^1.0.0"

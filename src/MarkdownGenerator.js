@@ -1,6 +1,7 @@
 import path from 'path';
 import { execSync } from 'child_process';
 import fs from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import llama3Tokenizer from 'llama3-tokenizer-js';
 import { TokenCleaner } from './TokenCleaner.js';
 
@@ -69,16 +70,33 @@ export class MarkdownGenerator {
         return markdownContent;
     }
 
+    async getTodo() {
+        try {
+            console.log("getting project todo")
+            return await readFile('./todo', 'utf-8');
+        } catch (error) {
+            if (error.code === 'ENOENT') { // File does not exist
+                console.log("File not found, creating a new 'todo' file.");
+                await writeFile('./todo', ''); // Create an empty 'todo' file
+                return this.getTodo(); // Call the function again
+            } else {
+                console.error(`Error reading todo file:`, error);
+            }
+        }
+    }
+
     async createMarkdownDocument() {
         try {
-            const markdownContent = await this.generateMarkdown();
-            await fs.writeFile(this.outputFilePath, markdownContent);
+            const codeMarkdown = await this.generateMarkdown();
+            const todos = await this.getTodo();
+            const markdown = codeMarkdown + `\n---\n${todos}\n`;
+            await fs.writeFile(this.outputFilePath, markdown);
             if (this.verbose) {
                 console.log(`Markdown document created at ${this.outputFilePath}`);
-                const totalTokens = llama3Tokenizer.encode(markdownContent).length;
+                const totalTokens = llama3Tokenizer.encode(markdown).length;
                 console.log({total_tokens: totalTokens});
             }
-            return { success: true, tokenCount: llama3Tokenizer.encode(markdownContent).length };
+            return { success: true, tokenCount: llama3Tokenizer.encode(markdown).length };
         } catch (error) {
             if (this.verbose) console.error('Error writing markdown document:', error);
             return { success: false, error };
