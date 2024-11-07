@@ -25,24 +25,27 @@ export default [
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'no-constant-condition': ['error', { checkLoops: false }],
       'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
-      'quotes': ['error', 'single', { avoidEscape: true }],
-      'semi': ['error', 'always'],
-      'indent': ['error', 2, { SwitchCase: 1 }],
+      quotes: ['error', 'single', { avoidEscape: true }],
+      semi: ['error', 'always'],
+      indent: ['error', 2, { SwitchCase: 1 }],
       'comma-dangle': ['error', 'always-multiline'],
-      'arrow-parens': ['error', 'as-needed'],  // Changed from 'avoid' to 'as-needed'
+      'arrow-parens': ['error', 'as-needed'], // Changed from 'avoid' to 'as-needed'
       'object-curly-spacing': ['error', 'always'],
       'array-bracket-spacing': ['error', 'never'],
-      'space-before-function-paren': ['error', {
-        anonymous: 'never',
-        named: 'never',
-        asyncArrow: 'always',
-      }],
+      'space-before-function-paren': [
+        'error',
+        {
+          anonymous: 'never',
+          named: 'never',
+          asyncArrow: 'always',
+        },
+      ],
       'no-trailing-spaces': 'error',
       'eol-last': ['error', 'always'],
       'prefer-const': 'error',
       'no-var': 'error',
-      'eqeqeq': ['error', 'always'],
-      'curly': ['error', 'all'],
+      eqeqeq: ['error', 'always'],
+      curly: ['error', 'all'],
       'brace-style': ['error', '1tbs', { allowSingleLine: false }],
       'keyword-spacing': ['error', { before: true, after: true }],
       'space-infix-ops': 'error',
@@ -56,8 +59,8 @@ export default [
   {
     files: ['src/TokenCleaner.js'],
     rules: {
-      'no-useless-escape': 'off'
-    }
+      'no-useless-escape': 'off',
+    },
   },
   {
     files: ['**/*.test.js', '**/*.spec.js'],

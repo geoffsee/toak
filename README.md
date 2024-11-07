@@ -2,11 +2,14 @@
 
 > Created to push creative limits.
 
-Process git repository files into markdown with token counting and sensitive data redaction.
+Process git repository files into markdown with token counting and sensitive
+data redaction.
 
 ## Overview
 
-`code-tokenizer-md` is a Node.js tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts.
+`code-tokenizer-md` is a Node.js tool that processes git repository files,
+cleans code, redacts sensitive information, and generates markdown documentation
+with token counts.
 
 ```mermaid
 graph TD
@@ -26,18 +29,21 @@ graph TD
 ## Features
 
 ### Data Processing
+
 - Reads files from git repository
 - Removes comments and unnecessary whitespace
 - Redacts sensitive information (API keys, tokens, etc.)
 - Counts tokens using llama3-tokenizer
 
 ### Analysis Types
+
 - Token counting per file
 - Total token usage
 - File content analysis
 - Sensitive data detection
 
 ### Data Presentation
+
 - Markdown formatted output
 - Code block formatting
 - Token count summaries
@@ -70,7 +76,7 @@ import { MarkdownGenerator } from 'code-tokenizer-md';
 
 const generator = new MarkdownGenerator({
   dir: './project',
-  outputFilePath: './output.md'
+  outputFilePath: './output.md',
 });
 
 const result = await generator.createMarkdownDocument();
@@ -105,12 +111,8 @@ src/
 
 ```javascript
 const generator = new MarkdownGenerator({
-  customPatterns: [
-    { regex: /TODO:/g, replacement: '' }
-  ],
-  customSecretPatterns: [
-    { regex: /mySecret/g, replacement: '[REDACTED]' }
-  ]
+  customPatterns: [{ regex: /TODO:/g, replacement: '' }],
+  customSecretPatterns: [{ regex: /mySecret/g, replacement: '[REDACTED]' }],
 });
 ```
 
@@ -131,6 +133,7 @@ const generator = new MarkdownGenerator({
 - Update the README for significant changes
 
 ## License
+
 MIT © 2024 Geoff Seemueller
 
 ## Note

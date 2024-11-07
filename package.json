@@ -15,8 +15,8 @@
     "prepublishOnly": "npm run build",
     "dev": "node ./src/cli.js",
     "deploy:dev": "pnpm publish .",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
     "fix": "pnpm format && pnpm lint:fix"
   },
