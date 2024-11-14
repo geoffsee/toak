@@ -51,7 +51,7 @@ export class MarkdownGenerator {
         '.ico',
         '.ttf',
         '.woff2',
-        'woff'
+        '.woff'
       ],
     );
     this.fileExclusions = options.fileExclusions || [
