@@ -50,7 +50,8 @@ export class MarkdownGenerator {
         '.yaml',
         '.ico',
         '.ttf',
-        '.css',
+        '.woff2',
+        'woff'
       ],
     );
     this.fileExclusions = options.fileExclusions || [
