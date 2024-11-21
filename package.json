@@ -1,6 +1,6 @@
 {
   "name": "code-tokenizer-md",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -13,15 +13,16 @@
     "build": "rm -rf dist && mkdir dist && cp src/*.js dist/",
     "test": "echo \"No tests specified\" && exit 0",
     "prepublishOnly": "npm run build",
-    "dev": "node ./src/cli.js",
-    "deploy:dev": "pnpm publish .",
+    "dev": "npx .",
+    "deploy:dev": "pnpm build && pnpm publish .",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
     "fix": "pnpm format && pnpm lint:fix"
   },
   "dependencies": {
-    "llama3-tokenizer-js": "^1.0.0"
+    "llama3-tokenizer-js": "^1.0.0",
+    "micromatch": "^4.0.8"
   },
   "peerDependencies": {
     "node": ">=14.0.0"

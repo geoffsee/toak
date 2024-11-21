@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+console.log("RUNNING TOKENIZER")
 import { MarkdownGenerator } from './MarkdownGenerator.js';
 
 const generator = new MarkdownGenerator();

@@ -1,9 +1,11 @@
+// MarkdownGenerator.js
+
 import path from 'path';
 import { execSync } from 'child_process';
-import fs from 'fs/promises';
 import { readFile, writeFile } from 'fs/promises';
 import llama3Tokenizer from 'llama3-tokenizer-js';
 import { TokenCleaner } from './TokenCleaner.js';
+import micromatch from 'micromatch';
 
 /**
  * @typedef {Object} MarkdownGeneratorOptions
@@ -24,14 +26,7 @@ import { TokenCleaner } from './TokenCleaner.js';
 export class MarkdownGenerator {
   /**
    * Creates an instance of MarkdownGenerator.
-   * @param {Object} [options={}] - Configuration options for the generator
-   * @param {string} [options.dir='.'] - The directory to process files from
-   * @param {string} [options.outputFilePath='./prompt.md'] - Path where the output markdown file will be saved
-   * @param {Set<string>} [options.fileTypeExclusions] - Set of file extensions to exclude (defaults to common image and asset files)
-   * @param {string[]} [options.fileExclusions] - Array of specific files or patterns to exclude
-   * @param {Object} [options.customPatterns] - Custom patterns for token cleaning
-   * @param {Object} [options.customSecretPatterns] - Custom patterns for identifying and redacting secrets
-   * @param {boolean} [options.verbose=true] - Whether to log detailed information during processing
+   * @param {MarkdownGeneratorOptions} [options={}] - Configuration options for the generator
    */
   constructor(options = {}) {
     this.dir = options.dir || '.';
@@ -110,7 +105,7 @@ export class MarkdownGenerator {
       '**/jsconfig.json',
       '**/jsconfig*.json',
       '**/package-lock.json',
-
+      '**/.prettierignore',
       // Environment and variables
       '**/.env*',
       '**/*.vars',
@@ -171,9 +166,11 @@ export class MarkdownGenerator {
       '**/temp/',
       '**/*.log'
     ];
+
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
-    this.verbose = options.verbose ?? true;
+    this.verbose = options.verbose !== undefined ? options.verbose : true;
   }
+
   /**
    * Retrieves a list of files tracked by Git, excluding those specified in fileTypeExclusions and fileExclusions.
    * @async
@@ -183,15 +180,21 @@ export class MarkdownGenerator {
   async getTrackedFiles() {
     try {
       const output = this.execCommand('git ls-files');
-      const trackedFiles = output.split('\n').filter(file => file.length > 0);
+      const trackedFiles = output.split('\n').filter(file => file.trim().length > 0);
       if (this.verbose) {
         console.log(`Total tracked files: ${trackedFiles.length}`);
       }
-      return trackedFiles.filter(file => {
+      // Use micromatch to filter out excluded files
+      const filteredFiles = trackedFiles.filter(file => {
         const fileExt = path.extname(file).toLowerCase();
-        const isExcluded = this.fileExclusions.some(pattern => this.isFileExcluded(file, pattern));
-        return !this.fileTypeExclusions.has(fileExt) && !isExcluded;
+        return !this.fileTypeExclusions.has(fileExt) && !micromatch.isMatch(file, this.fileExclusions, { dot: true });
       });
+      if (this.verbose) {
+        const excludedCount = trackedFiles.length - filteredFiles.length;
+        console.log(`Excluded files: ${excludedCount}`);
+        console.log(`Files to process after exclusions: ${filteredFiles.length}`);
+      }
+      return filteredFiles;
     } catch (error) {
       if (this.verbose) {
         console.error('Error fetching tracked files:', error);
@@ -199,72 +202,7 @@ export class MarkdownGenerator {
       return [];
     }
   }
-  /**
-   * Determines if a file should be excluded based on the given pattern.
-   * @param {string} filePath - Path of the file to check
-   * @param {string} pattern - Exclusion pattern to match against
-   * @returns {boolean} True if the file should be excluded, false otherwise
-   * @example
-   * // Excludes all files in a directory
-   * isFileExcluded('src/tests/file.js', 'src/tests/*') // returns true
-   * // Excludes specific file extensions in a directory
-   * isFileExcluded('src/assets/image.png', 'src/assets/*.png') // returns true
-   */
-  isFileExcluded(filePath, pattern) {
-    // Normalize paths to use forward slashes
-    filePath = filePath.replace(/\\/g, '/');
-    pattern = pattern.replace(/\\/g, '/');
 
-    // Handle directory-only patterns (ending with /)
-    if (pattern.endsWith('/')) {
-      const directory = pattern.slice(0, -1);
-      if (directory.startsWith('**/')) {
-        const dirToMatch = directory.slice(3);
-        return filePath.includes(`${dirToMatch}/`);
-      }
-      return filePath.startsWith(directory + '/');
-    }
-
-    // Handle brace expansion for extensions {js,ts}
-    if (pattern.includes('{') && pattern.includes('}')) {
-      const [basePath, extensionsGroup] = pattern.split('{');
-      const extensions = extensionsGroup.slice(0, -1).split(',');
-      return extensions.some(ext =>
-        this.isFileExcluded(filePath, basePath + ext)
-      );
-    }
-
-    // Handle directory/*.ext patterns (extension wildcards in specific directories)
-    if (pattern.includes('/*.')) {
-      const [directory, ext] = pattern.split('/*.');
-      const relativePath = filePath.slice(directory.length + 1);
-      return filePath.startsWith(directory + '/') &&
-        !relativePath.includes('/') &&
-        filePath.endsWith('.' + ext);
-    }
-
-    // Handle pure extension wildcards (*.ext)
-    if (pattern.startsWith('*.')) {
-      return filePath.endsWith(pattern.slice(1));
-    }
-
-    // Convert glob pattern to regex for remaining cases
-    const regexPattern = pattern
-      // Escape special regex characters except * and ?
-      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-      // Replace ** with special placeholder
-      .replace(/\*\*/g, '{{GLOBSTAR}}')
-      // Replace * with regex pattern
-      .replace(/\*/g, '[^/]*')
-      // Replace globstar placeholder with proper regex
-      .replace(/{{GLOBSTAR}}/g, '.*')
-      // Anchor the regex
-      .replace(/^/, '^')
-      .replace(/$/, '$');
-
-    const regex = new RegExp(regexPattern);
-    return regex.test(filePath);
-  }
   /**
    * Reads and processes the content of a file, cleaning and redacting sensitive information.
    * @async
@@ -274,7 +212,7 @@ export class MarkdownGenerator {
    */
   async readFileContent(filePath) {
     try {
-      const content = await fs.readFile(filePath, 'utf-8');
+      const content = await readFile(filePath, 'utf-8');
       const cleanedAndRedactedContent = this.tokenCleaner.cleanAndRedact(content);
       if (this.verbose) {
         const tokenCount = llama3Tokenizer.encode(cleanedAndRedactedContent).length;
@@ -288,6 +226,7 @@ export class MarkdownGenerator {
       return '';
     }
   }
+
   /**
    * Generates markdown content from all tracked files in the project.
    * @async
@@ -302,11 +241,17 @@ export class MarkdownGenerator {
     let markdownContent = '# Project Files\n\n';
 
     for (const file of trackedFiles) {
-      const content = await this.readFileContent(path.join(this.dir, file));
-      markdownContent += `## ${file}\n~~~\n${content.trim()}\n~~~\n`;
+      const absolutePath = path.join(this.dir, file);
+      const content = await this.readFileContent(absolutePath);
+      if (content.trim()) { // Only include files with content after cleaning
+        markdownContent += `## ${file}\n~~~\n${content.trim()}\n~~~\n\n`;
+      } else if (this.verbose) {
+        console.log(`Skipping ${file} as it has no content after cleaning.`);
+      }
     }
     return markdownContent;
   }
+
   /**
    * Retrieves the content of the project's todo file, creating it if it doesn't exist.
    * @async
@@ -314,19 +259,28 @@ export class MarkdownGenerator {
    * @throws {Error} When unable to read or create the todo file
    */
   async getTodo() {
+    const todoPath = path.join(this.dir, 'todo');
     try {
-      console.log('Reading todo file');
-      return await readFile('./todo', 'utf-8');
+      if (this.verbose) {
+        console.log('Reading todo file');
+      }
+      return await readFile(todoPath, 'utf-8');
     } catch (error) {
       if (error.code === 'ENOENT') {
         // File does not exist
-        console.log("File not found, creating a new 'todo' file.");
-        await writeFile('./todo', ''); // Create an empty 'todo' file
-        return this.getTodo(); // Call the function again
+        if (this.verbose) {
+          console.log("File not found, creating a new 'todo' file.");
+        }
+        await writeFile(todoPath, ''); // Create an empty 'todo' file
+        return await this.getTodo(); // Await the recursive call
       }
-      console.error('Error reading todo file:', error);
+      if (this.verbose) {
+        console.error('Error reading todo file:', error);
+      }
+      throw error;
     }
   }
+
   /**
    * Creates a complete markdown document combining code documentation and todos.
    * @async
@@ -340,8 +294,8 @@ export class MarkdownGenerator {
     try {
       const codeMarkdown = await this.generateMarkdown();
       const todos = await this.getTodo();
-      const markdown = codeMarkdown + `\n---\n${todos}\n`;
-      await fs.writeFile(this.outputFilePath, markdown);
+      const markdown = codeMarkdown + `\n---\n\n${todos}\n`;
+      await writeFile(this.outputFilePath, markdown);
       if (this.verbose) {
         console.log(`Markdown document created at ${this.outputFilePath}`);
         const totalTokens = llama3Tokenizer.encode(markdown).length;
@@ -355,6 +309,7 @@ export class MarkdownGenerator {
       return { success: false, error };
     }
   }
+
   /**
    * Executes a shell command in the specified directory.
    * @param {string} command - Shell command to execute
