@@ -36,8 +36,10 @@ export class MarkdownGenerator {
   constructor(options = {}) {
     this.dir = options.dir || '.';
     this.outputFilePath = options.outputFilePath || './prompt.md';
+
     this.fileTypeExclusions = new Set(
       options.fileTypeExclusions || [
+        // Images
         '.jpg',
         '.jpeg',
         '.png',
@@ -46,19 +48,125 @@ export class MarkdownGenerator {
         '.svg',
         '.webp',
         '.tiff',
-        '.lockb',
-        '.yaml',
         '.ico',
+
+        // Fonts
         '.ttf',
+        '.woff',
         '.woff2',
-        '.woff'
-      ],
+        '.eot',
+        '.otf',
+
+        // Lock files
+        '.lock',
+        '.lockb',
+
+        // Config files
+        '.yaml',
+        '.yml',
+        '.toml',
+        '.conf',
+
+        // Binary and compiled
+        '.exe',
+        '.dll',
+        '.so',
+        '.dylib',
+        '.bin',
+        '.dat',
+        '.pyc',
+        '.pyo',
+        '.class',
+        '.jar',
+
+        // Archives
+        '.zip',
+        '.tar',
+        '.gz',
+        '.rar',
+        '.7z',
+
+        // Media
+        '.mp3',
+        '.mp4',
+        '.avi',
+        '.mov',
+        '.wav',
+
+        // Database
+        '.db',
+        '.sqlite',
+        '.sqlite3'
+      ]
     );
+
     this.fileExclusions = options.fileExclusions || [
-      'prompt.js',
-      '.gitignore',
-      '.env',
-      '.dev.vars',
+      // Config patterns
+      '**/.*rc',
+      '**/.*rc.{js,json,yaml,yml}',
+      '**/*.config.{js,ts}',
+      '**/tsconfig*.json',
+      '**/jsconfig*.json',
+
+      // Environment and variables
+      '**/.env*',
+      '**/*.vars',
+      '**/secrets.*',
+
+      // Version control
+      '**/.git*',
+      '**/.hg*',
+      '**/.svn*',
+      '**/CVS',
+      '**/.github/',
+
+      // CI/CD
+      '**/.gitlab-ci.yml',
+      '**/azure-pipelines.yml',
+      '**/jenkins*',
+
+      // Dependency directories
+      '**/node_modules/',
+      '**/target/',
+      '**/__pycache__/',
+      '**/venv/',
+      '**/.venv/',
+      '**/env/',
+      '**/build/',
+      '**/dist/',
+      '**/out/',
+      '**/bin/',
+      '**/obj/',
+
+      // Documentation
+      '**/README*',
+      '**/CHANGELOG*',
+      '**/CONTRIBUTING*',
+      '**/LICENSE*',
+      '**/docs/',
+      '**/documentation/',
+
+      // IDE and editors
+      '**/.{idea,vscode,eclipse,settings,zed,cursor}/',
+      '**/.project',
+      '**/.classpath',
+      '**/.factorypath',
+
+      // Test and data
+      '**/test{s,}/',
+      '**/spec/',
+      '**/fixtures/',
+      '**/testdata/',
+      '**/__tests__/',
+      '**/*.{test,spec}.*',
+      '**/coverage/',
+      '**/jest.config.*',
+
+      // Logs and temporary files
+      '**/logs/',
+      '**/tmp/',
+      '**/temp/',
+      '**/*.log'
     ];
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
     this.verbose = options.verbose ?? true;
@@ -100,14 +208,74 @@ export class MarkdownGenerator {
    * isFileExcluded('src/assets/image.png', 'src/assets/*.png') // returns true
    */
   isFileExcluded(filePath, pattern) {
-    if (pattern.endsWith('/*')) {
-      const directory = pattern.slice(0, -2);
+    // Normalize paths to use forward slashes
+    filePath = filePath.replace(/\\/g, '/');
+    pattern = pattern.replace(/\\/g, '/');
+
+    // Handle directory-only patterns (ending with /)
+    if (pattern.endsWith('/')) {
+      const directory = pattern.slice(0, -1);
+      if (directory.startsWith('**/')) {
+        const dirToMatch = directory.slice(3);
+        return filePath.includes(dirToMatch + '/');
+      }
       return filePath.startsWith(directory);
     }
-    if (pattern.includes('/*')) {
-      const [directory, ext] = pattern.split('/*');
-      return filePath.startsWith(directory) && filePath.endsWith(ext);
+
+    // Handle globstar patterns
+    if (pattern.startsWith('**/')) {
+      const patternWithoutGlob = pattern.slice(3);
+
+      // Handle extension wildcards after globstar
+      if (patternWithoutGlob.startsWith('*.')) {
+        return filePath.endsWith(patternWithoutGlob.slice(1));
+      }
+
+      // Handle middle-path globstar matches
+      if (patternWithoutGlob.includes('/')) {
+        const parts = patternWithoutGlob.split('/');
+        let currentPath = filePath;
+
+        for (let i = parts.length - 1; i >= 0; i--) {
+          const part = parts[i];
+          if (part === '*') {
+            const parentDir = parts.slice(0, i).join('/');
+            return currentPath.startsWith(parentDir);
+          }
+          if (!currentPath.endsWith(part)) {
+            return false;
+          }
+          currentPath = currentPath.slice(0, currentPath.length - part.length - 1);
+        }
+        return true;
+      }
+
+      // Simple globstar file match
+      return filePath.endsWith(patternWithoutGlob);
     }
+
+    // Handle directory wildcard patterns
+    if (pattern.endsWith('/*')) {
+      const directory = pattern.slice(0, -2);
+      return filePath.startsWith(directory + '/') &&
+        !filePath.slice(directory.length + 1).includes('/');
+    }
+
+    // Handle extension wildcards in specific directories
+    if (pattern.includes('/*.')) {
+      const [directory, ext] = pattern.split('/*.');
+      const relativePath = filePath.slice(directory.length + 1);
+      return filePath.startsWith(directory + '/') &&
+        !relativePath.includes('/') &&
+        filePath.endsWith('.' + ext);
+    }
+
+    // Handle pure wildcards
+    if (pattern.startsWith('*.')) {
+      return filePath.endsWith(pattern.slice(1));
+    }
+
+    // Exact match
     return filePath === pattern;
   }
   /**
