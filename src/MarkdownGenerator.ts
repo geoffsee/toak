@@ -1,4 +1,4 @@
-// MarkdownGenerator.js
+// MarkdownGenerator.ts
 
 import path from 'path';
 import { execSync } from 'child_process';
@@ -6,17 +6,18 @@ import { readFile, writeFile } from 'fs/promises';
 import llama3Tokenizer from 'llama3-tokenizer-js';
 import { TokenCleaner } from './TokenCleaner.js';
 import micromatch from 'micromatch';
+import fileTypeExclusions from './fileTypeExclusions.js';
+import fileExclusions from './fileExclusions.js';
 
-/**
- * @typedef {Object} MarkdownGeneratorOptions
- * @property {string} [dir='.'] - The directory to process files from
- * @property {string} [outputFilePath='./prompt.md'] - Path where the output markdown file will be saved
- * @property {Set<string>} [fileTypeExclusions] - Set of file extensions to exclude
- * @property {string[]} [fileExclusions] - Array of specific files or patterns to exclude
- * @property {Object} [customPatterns] - Custom patterns for token cleaning
- * @property {Object} [customSecretPatterns] - Custom patterns for identifying and redacting secrets
- * @property {boolean} [verbose=true] - Whether to log detailed information during processing
- */
+interface MarkdownGeneratorOptions {
+  dir?: string;
+  outputFilePath?: string;
+  fileTypeExclusions?: Set<string>;
+  fileExclusions?: string[];
+  customPatterns?: Record<string, any>;
+  customSecretPatterns?: Record<string, any>;
+  verbose?: boolean;
+}
 
 /**
  * @class MarkdownGenerator
@@ -24,148 +25,26 @@ import micromatch from 'micromatch';
  * It can exclude specific file types and files, clean tokens, and include todo lists.
  */
 export class MarkdownGenerator {
+  private dir: string;
+  private outputFilePath: string;
+  private fileTypeExclusions: Set<string>;
+  private fileExclusions: string[];
+  private tokenCleaner: TokenCleaner;
+  private verbose: boolean;
+
   /**
    * Creates an instance of MarkdownGenerator.
    * @param {MarkdownGeneratorOptions} [options={}] - Configuration options for the generator
    */
-  constructor(options = {}) {
+  constructor(options: MarkdownGeneratorOptions = {}) {
     this.dir = options.dir || '.';
     this.outputFilePath = options.outputFilePath || './prompt.md';
 
     this.fileTypeExclusions = new Set(
-      options.fileTypeExclusions || [
-        // Images
-        '.jpg',
-        '.jpeg',
-        '.png',
-        '.gif',
-        '.bmp',
-        '.svg',
-        '.webp',
-        '.tiff',
-        '.ico',
-
-        // Fonts
-        '.ttf',
-        '.woff',
-        '.woff2',
-        '.eot',
-        '.otf',
-
-        // Lock files
-        '.lock',
-        '.lockb',
-
-        // Config files
-        '.yaml',
-        '.yml',
-        '.toml',
-        '.conf',
-
-        // Binary and compiled
-        '.exe',
-        '.dll',
-        '.so',
-        '.dylib',
-        '.bin',
-        '.dat',
-        '.pyc',
-        '.pyo',
-        '.class',
-        '.jar',
-
-        // Archives
-        '.zip',
-        '.tar',
-        '.gz',
-        '.rar',
-        '.7z',
-
-        // Media
-        '.mp3',
-        '.mp4',
-        '.avi',
-        '.mov',
-        '.wav',
-
-        // Database
-        '.db',
-        '.sqlite',
-        '.sqlite3'
-      ]
+      options.fileTypeExclusions || fileTypeExclusions,
     );
 
-    this.fileExclusions = options.fileExclusions || [
-      // Config patterns
-      '**/.*rc',
-      '**/.*rc.{js,json,yaml,yml}',
-      '**/*.config.{js,ts}',
-      '**/tsconfig.json',
-      '**/tsconfig*.json',
-      '**/jsconfig.json',
-      '**/jsconfig*.json',
-      '**/package-lock.json',
-      '**/.prettierignore',
-      // Environment and variables
-      '**/.env*',
-      '**/*.vars',
-      '**/secrets.*',
-
-      // Version control
-      '**/.git*',
-      '**/.hg*',
-      '**/.svn*',
-      '**/CVS',
-      '**/.github/',
-
-      // CI/CD
-      '**/.gitlab-ci.yml',
-      '**/azure-pipelines.yml',
-      '**/jenkins*',
-
-      // Dependency directories
-      '**/node_modules/',
-      '**/target/',
-      '**/__pycache__/',
-      '**/venv/',
-      '**/.venv/',
-      '**/env/',
-      '**/build/',
-      '**/dist/',
-      '**/out/',
-      '**/bin/',
-      '**/obj/',
-
-      // Documentation
-      '**/README*',
-      '**/CHANGELOG*',
-      '**/CONTRIBUTING*',
-      '**/LICENSE*',
-      '**/docs/',
-      '**/documentation/',
-
-      // IDE and editors
-      '**/.{idea,vscode,eclipse,settings,zed,cursor}/',
-      '**/.project',
-      '**/.classpath',
-      '**/.factorypath',
-
-      // Test and data
-      '**/test{s,}/',
-      '**/spec/',
-      '**/fixtures/',
-      '**/testdata/',
-      '**/__tests__/',
-      '**/*.{test,spec}.*',
-      '**/coverage/',
-      '**/jest.config.*',
-
-      // Logs and temporary files
-      '**/logs/',
-      '**/tmp/',
-      '**/temp/',
-      '**/*.log'
-    ];
+    this.fileExclusions = options.fileExclusions || fileExclusions;
 
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
     this.verbose = options.verbose !== undefined ? options.verbose : true;
@@ -177,7 +56,7 @@ export class MarkdownGenerator {
    * @returns {Promise<string[]>} Array of tracked file paths that aren't excluded
    * @throws {Error} When unable to execute git command or access files
    */
-  async getTrackedFiles() {
+  async getTrackedFiles(): Promise<string[]> {
     try {
       const output = this.execCommand('git ls-files');
       const trackedFiles = output.split('\n').filter(file => file.trim().length > 0);
@@ -210,7 +89,7 @@ export class MarkdownGenerator {
    * @returns {Promise<string>} Cleaned and redacted content of the file
    * @throws {Error} When unable to read or process the file
    */
-  async readFileContent(filePath) {
+  async readFileContent(filePath: string): Promise<string> {
     try {
       const content = await readFile(filePath, 'utf-8');
       const cleanedAndRedactedContent = this.tokenCleaner.cleanAndRedact(content);
@@ -233,7 +112,7 @@ export class MarkdownGenerator {
    * @returns {Promise<string>} Generated markdown content containing all processed files
    * @throws {Error} When unable to generate markdown content
    */
-  async generateMarkdown() {
+  async generateMarkdown(): Promise<string> {
     const trackedFiles = await this.getTrackedFiles();
     if (this.verbose) {
       console.log(`Generating markdown for ${trackedFiles.length} files`);
@@ -258,18 +137,18 @@ export class MarkdownGenerator {
    * @returns {Promise<string>} Content of the todo file
    * @throws {Error} When unable to read or create the todo file
    */
-  async getTodo() {
+  async getTodo(): Promise<string> {
     const todoPath = path.join(this.dir, 'todo');
     try {
       if (this.verbose) {
         console.log('Reading todo file');
       }
       return await readFile(todoPath, 'utf-8');
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === 'ENOENT') {
         // File does not exist
         if (this.verbose) {
-          console.log("File not found, creating a new 'todo' file.");
+          console.log('File not found, creating a new \'todo\' file.');
         }
         await writeFile(todoPath, ''); // Create an empty 'todo' file
         return await this.getTodo(); // Await the recursive call
@@ -290,7 +169,7 @@ export class MarkdownGenerator {
    * @returns {Error} [result.error] - Error object if operation failed
    * @throws {Error} When unable to create or write the markdown document
    */
-  async createMarkdownDocument() {
+  async createMarkdownDocument(): Promise<{ success: boolean, tokenCount?: number, error?: Error }> {
     try {
       const codeMarkdown = await this.generateMarkdown();
       const todos = await this.getTodo();
@@ -317,7 +196,7 @@ export class MarkdownGenerator {
    * @throws {Error} When command execution fails
    * @private
    */
-  execCommand(command) {
+  private execCommand(command: string): string {
     try {
       return execSync(command, { cwd: this.dir, encoding: 'utf-8' }).toString().trim();
     } catch (error) {

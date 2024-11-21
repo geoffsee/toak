@@ -1,5 +1,11 @@
 export class TokenCleaner {
-  constructor(customPatterns = [], customSecretPatterns = []) {
+  patterns: { regex: RegExp; replacement: string }[];
+  secretPatterns: { regex: RegExp; replacement: string }[];
+
+  constructor(customPatterns: { regex: RegExp; replacement: string }[] = [], customSecretPatterns: {
+    regex: RegExp;
+    replacement: string
+  }[] = []) {
     this.patterns = [
       { regex: /\/\/.*$/gm, replacement: '' },
       { regex: /\/\*[\s\S]*?\*\//gm, replacement: '' },
@@ -40,21 +46,21 @@ export class TokenCleaner {
     ];
   }
 
-  clean(code) {
+  clean(code: string): string {
     return this.patterns.reduce(
       (cleanCode, pattern) => cleanCode.replace(pattern.regex, pattern.replacement),
       code,
     );
   }
 
-  redactSecrets(code) {
+  redactSecrets(code: string): string {
     return this.secretPatterns.reduce(
       (redactedCode, pattern) => redactedCode.replace(pattern.regex, pattern.replacement),
       code,
     );
   }
 
-  cleanAndRedact(code) {
+  cleanAndRedact(code: string): string {
     const cleanedCode = this.clean(code);
     return this.redactSecrets(cleanedCode);
   }
