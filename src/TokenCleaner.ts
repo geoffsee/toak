@@ -7,13 +7,13 @@ export class TokenCleaner {
     replacement: string
   }[] = []) {
     this.patterns = [
-      { regex: /\/\/.*$/gm, replacement: '' },
-      { regex: /\/\*[\s\S]*?\*\//gm, replacement: '' },
-      { regex: /console\.(log|error|warn|info)\(.*?\);?/g, replacement: '' },
-      { regex: /^\s*[\r\n]/gm, replacement: '' },
-      { regex: / +$/gm, replacement: '' },
-      { regex: /^\s*import\s+.*?;?\s*$/gm, replacement: '' },
-      { regex: /^\s*\n+/gm, replacement: '\n' },
+      { regex: /\/\/.*$/gm, replacement: '' }, // Single-line comments
+      { regex: /\/\*[\s\S]*?\*\//g, replacement: '' }, // Multi-line comments
+      { regex: /console\.(log|error|warn|info)\(.*?\);?/g, replacement: '' }, // Console statements
+      { regex: /^\s*[\r\n]/gm, replacement: '' }, // Empty lines
+      { regex: / +$/gm, replacement: '' }, // Trailing spaces
+      { regex: /^\s*import\s+.*?;?\s*$/gm, replacement: '' }, // Import statements
+      { regex: /^\s*\n+/gm, replacement: '\n' }, // Multiple newlines
       ...customPatterns,
     ];
     // eslint-no-no-useless-escape
