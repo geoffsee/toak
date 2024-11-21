@@ -2,14 +2,11 @@
 
 > Created to push creative limits.
 
-Process git repository files into markdown with token counting and sensitive
-data redaction.
+Process git repository files into markdown with token counting and sensitive data redaction.
 
 ## Overview
 
-`code-tokenizer-md` is a Node.js tool that processes git repository files,
-cleans code, redacts sensitive information, and generates markdown documentation
-with token counts.
+`code-tokenizer-md` is a TypeScript/Bun tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts.
 
 ```mermaid
 graph TD
@@ -52,26 +49,31 @@ graph TD
 ## Requirements
 
 - Node.js (>=14.0.0)
+- Bun runtime
 - Git repository
-- npm or npx
 
 ## Installation
 
-```shell
-npm install -g code-tokenizer-md
-```
+
 
 ## Usage
 
-### Quick Start
+### CLI
 
 ```shell
 npx code-tokenizer-md
 ```
 
+### Library
+### 
+```shell
+npm install code-tokenizer-md
+```
+
+
 ### Programmatic Usage
 
-```javascript
+```typescript
 import { MarkdownGenerator } from 'code-tokenizer-md';
 
 const generator = new MarkdownGenerator({
@@ -86,10 +88,12 @@ const result = await generator.createMarkdownDocument();
 
 ```
 src/
-├── index.js              # Main exports
-├── TokenCleaner.js       # Code cleaning and redaction
-├── MarkdownGenerator.js  # Markdown generation logic
-└── cli.js               # CLI implementation
+├── index.ts              # Main exports
+├── TokenCleaner.ts       # Code cleaning and redaction
+├── MarkdownGenerator.ts  # Markdown generation logic
+├── cli.ts               # CLI implementation
+├── fileExclusions.ts    # File exclusion patterns
+└── fileTypeExclusions.ts # File type exclusions
 ```
 
 ## Dependencies
@@ -97,23 +101,79 @@ src/
 ```json
 {
   "dependencies": {
-    "llama3-tokenizer-js": "^1.0.0"
+    "llama3-tokenizer-js": "^1.0.0",
+    "micromatch": "^4.0.8"
   },
   "peerDependencies": {
     "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "eslint": "^9.14.0",
+    "globals": "^15.12.0",
+    "prettier": "^3.3.3",
+    "bun": "latest",
+    "@types/bun": "latest",
+    "@types/node": "^22.9.1",
+    "@types/micromatch": "^4.0.9"
   }
 }
+```
+
+## Development
+
+This project uses [bun](https://github.com/oven-sh/bun) for it's toolchain. You should be able to use whatever you want as a consumer of the library. 
+
+### Building
+```shell
+npm run build
+```
+
+### Testing
+
+```shell
+npm test
+```
+
+### Linting and Formatting
+
+```shell
+# Lint
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+
+# Format code
+npm run format
+
+# Fix all (format + lint)
+npm run fix
 ```
 
 ## Extending
 
 ### Adding Custom Patterns
 
-```javascript
+```typescript
 const generator = new MarkdownGenerator({
   customPatterns: [{ regex: /TODO:/g, replacement: '' }],
   customSecretPatterns: [{ regex: /mySecret/g, replacement: '[REDACTED]' }],
 });
+```
+
+### Configuration Options
+
+```typescript
+interface MarkdownGeneratorOptions {
+  dir?: string;               // Project directory
+  outputFilePath?: string;    // Output markdown file path
+  fileTypeExclusions?: Set<string>;  // File types to exclude
+  fileExclusions?: string[];  // File patterns to exclude
+  customPatterns?: Record<string, any>;  // Custom cleaning patterns
+  customSecretPatterns?: Record<string, any>;  // Custom redaction patterns
+  verbose?: boolean;          // Enable verbose logging
+}
 ```
 
 ## Contributing
@@ -126,10 +186,10 @@ const generator = new MarkdownGenerator({
 
 ### Contribution Guidelines
 
-- Follow Node.js best practices
+- Write TypeScript code following the project's style
 - Include appropriate error handling
 - Add documentation for new features
-- Include tests for new functionality (this project needs a suite)
+- Include tests for new functionality
 - Update the README for significant changes
 
 ## License
