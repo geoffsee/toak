@@ -107,6 +107,7 @@ export class MarkdownGenerator {
       '**/*.config.{js,ts}',
       '**/tsconfig*.json',
       '**/jsconfig*.json',
+      '**/package-lock.json',
 
       // Environment and variables
       '**/.env*',
