@@ -9,6 +9,7 @@ export default [
   '**/jsconfig*.json',
   '**/package-lock.json',
   '**/.prettierignore',
+  '**/.dockerignore',
   // Environment and variables
   '**/.env*',
   '**/*.vars',
