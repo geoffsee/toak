@@ -105,7 +105,9 @@ export class MarkdownGenerator {
       '**/.*rc',
       '**/.*rc.{js,json,yaml,yml}',
       '**/*.config.{js,ts}',
+      '**/tsconfig.json',
       '**/tsconfig*.json',
+      '**/jsconfig.json',
       '**/jsconfig*.json',
       '**/package-lock.json',
 
@@ -218,51 +220,21 @@ export class MarkdownGenerator {
       const directory = pattern.slice(0, -1);
       if (directory.startsWith('**/')) {
         const dirToMatch = directory.slice(3);
-        return filePath.includes(dirToMatch + '/');
+        return filePath.includes(`${dirToMatch}/`);
       }
-      return filePath.startsWith(directory);
+      return filePath.startsWith(directory + '/');
     }
 
-    // Handle globstar patterns
-    if (pattern.startsWith('**/')) {
-      const patternWithoutGlob = pattern.slice(3);
-
-      // Handle extension wildcards after globstar
-      if (patternWithoutGlob.startsWith('*.')) {
-        return filePath.endsWith(patternWithoutGlob.slice(1));
-      }
-
-      // Handle middle-path globstar matches
-      if (patternWithoutGlob.includes('/')) {
-        const parts = patternWithoutGlob.split('/');
-        let currentPath = filePath;
-
-        for (let i = parts.length - 1; i >= 0; i--) {
-          const part = parts[i];
-          if (part === '*') {
-            const parentDir = parts.slice(0, i).join('/');
-            return currentPath.startsWith(parentDir);
-          }
-          if (!currentPath.endsWith(part)) {
-            return false;
-          }
-          currentPath = currentPath.slice(0, currentPath.length - part.length - 1);
-        }
-        return true;
-      }
-
-      // Simple globstar file match
-      return filePath.endsWith(patternWithoutGlob);
+    // Handle brace expansion for extensions {js,ts}
+    if (pattern.includes('{') && pattern.includes('}')) {
+      const [basePath, extensionsGroup] = pattern.split('{');
+      const extensions = extensionsGroup.slice(0, -1).split(',');
+      return extensions.some(ext =>
+        this.isFileExcluded(filePath, basePath + ext)
+      );
     }
 
-    // Handle directory wildcard patterns
-    if (pattern.endsWith('/*')) {
-      const directory = pattern.slice(0, -2);
-      return filePath.startsWith(directory + '/') &&
-        !filePath.slice(directory.length + 1).includes('/');
-    }
-
-    // Handle extension wildcards in specific directories
+    // Handle directory/*.ext patterns (extension wildcards in specific directories)
     if (pattern.includes('/*.')) {
       const [directory, ext] = pattern.split('/*.');
       const relativePath = filePath.slice(directory.length + 1);
@@ -271,13 +243,27 @@ export class MarkdownGenerator {
         filePath.endsWith('.' + ext);
     }
 
-    // Handle pure wildcards
+    // Handle pure extension wildcards (*.ext)
     if (pattern.startsWith('*.')) {
       return filePath.endsWith(pattern.slice(1));
     }
 
-    // Exact match
-    return filePath === pattern;
+    // Convert glob pattern to regex for remaining cases
+    const regexPattern = pattern
+      // Escape special regex characters except * and ?
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      // Replace ** with special placeholder
+      .replace(/\*\*/g, '{{GLOBSTAR}}')
+      // Replace * with regex pattern
+      .replace(/\*/g, '[^/]*')
+      // Replace globstar placeholder with proper regex
+      .replace(/{{GLOBSTAR}}/g, '.*')
+      // Anchor the regex
+      .replace(/^/, '^')
+      .replace(/$/, '$');
+
+    const regex = new RegExp(regexPattern);
+    return regex.test(filePath);
   }
   /**
    * Reads and processes the content of a file, cleaning and redacting sensitive information.
