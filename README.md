@@ -1,12 +1,17 @@
 # code-tokenizer-md
 
-> Created to push creative limits.
+> Created to push creative limits. Processes git repository files into markdown with token counting and sensitive data redaction. 
 
-Process git repository files into markdown with token counting and sensitive data redaction.
+## Quickstart
+```
+$ cd your-git-repo
+$ npx code-tokenizer-md
+```
+#### Next Steps: Refine your outputs with [.code-tokenizer-md-ignore](#ignore-file-configuration) 
 
 ## Overview
 
-`code-tokenizer-md` is a TypeScript/Bun tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts.
+`code-tokenizer-md` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts.
 
 ```mermaid
 graph TD
@@ -54,7 +59,9 @@ graph TD
 
 ## Installation
 
-
+```shell
+npm install code-tokenizer-md
+```
 
 ## Usage
 
@@ -63,13 +70,6 @@ graph TD
 ```shell
 npx code-tokenizer-md
 ```
-
-### Library
-### 
-```shell
-npm install code-tokenizer-md
-```
-
 
 ### Programmatic Usage
 
@@ -83,6 +83,70 @@ const generator = new MarkdownGenerator({
 
 const result = await generator.createMarkdownDocument();
 ```
+
+`## Ignore File Configuration`
+
+### .code-tokenizer-md-ignore
+
+The `.code-tokenizer-md-ignore` file allows you to specify patterns for files and directories that should be excluded from processing. You can create this file in any directory within your project, and it will affect that directory and all subdirectories.
+
+#### Features:
+
+- Supports nested ignore files (multiple .code-tokenizer-md-ignore files in different directories)
+- Uses glob patterns for matching
+- Inherits patterns from parent directories
+- Supports both relative and absolute paths
+
+Example `.code-tokenizer-md-ignore` file:
+```
+# Ignore specific files
+secrets.json
+config.private.ts
+
+# Ignore directories
+build/
+temp/
+
+# Glob patterns
+**/*.test.ts
+**/._*
+```
+
+#### Pattern Rules:
+- Lines starting with `#` are comments
+- Empty lines are ignored
+- Patterns are relative to the ignore file's location
+- Use `**` for matching across directories
+- Patterns without leading `/` or `**` are relative to the ignore file's directory
+- Patterns with leading `/` are relative to the project root
+
+## Bundling Process
+
+The project uses Bun's built-in bundler for creating optimized production builds. The bundling process includes:
+
+1. **Source Compilation**:
+    - TypeScript files are compiled using Bun's native TypeScript support
+    - Declaration files are generated using `bun-plugin-isolated-decl`
+    - Output is optimized for Node.js runtime
+
+2. **CLI Bundling**:
+    - Separate bundle for CLI usage
+    - Compiled to native binary for improved performance
+    - Includes shebang for direct execution
+
+3. **Output Structure**:
+   ```
+   dist/
+   ├── index.js      # Main library bundle
+   ├── index.d.ts    # TypeScript declarations
+   └── code-tokenizer-md  # CLI executable
+   ```
+
+4. **Bundle Configuration**:
+    - Target: Node.js
+    - Module Format: ESM
+    - Includes source maps
+    - Preserves path resolution
 
 ## Project Structure
 
@@ -122,7 +186,7 @@ src/
 
 ## Development
 
-This project uses [bun](https://github.com/oven-sh/bun) for it's toolchain. You should be able to use whatever you want as a consumer of the library. 
+This project uses [bun](https://github.com/oven-sh/bun) for its toolchain. You should be able to use whatever you want as a consumer of the library.
 
 ### Building
 ```shell
