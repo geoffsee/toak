@@ -31,6 +31,9 @@
     "fix": "pnpm format && pnpm lint:fix"
   },
   "dependencies": {
+    "@types/ignore-walk": "^4.0.3",
+    "glob": "^11.0.0",
+    "ignore-walk": "^7.0.0",
     "llama3-tokenizer-js": "^1.0.0",
     "micromatch": "^4.0.8"
   },

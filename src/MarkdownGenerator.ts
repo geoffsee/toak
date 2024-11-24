@@ -5,9 +5,12 @@ import { execSync } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
 import llama3Tokenizer from 'llama3-tokenizer-js';
 import { TokenCleaner } from './TokenCleaner.js';
-import micromatch from 'micromatch';
+import * as micromatch from 'micromatch';
 import fileTypeExclusions from './fileTypeExclusions.js';
 import fileExclusions from './fileExclusions.js';
+import { readFileSync } from 'node:fs';
+import { Glob } from 'bun';
+
 
 interface MarkdownGeneratorOptions {
   dir?: string;
@@ -31,6 +34,7 @@ export class MarkdownGenerator {
   private fileExclusions: string[];
   private tokenCleaner: TokenCleaner;
   private verbose: boolean;
+  private initialized: boolean;
 
   /**
    * Creates an instance of MarkdownGenerator.
@@ -39,17 +43,110 @@ export class MarkdownGenerator {
   constructor(options: MarkdownGeneratorOptions = {}) {
     this.dir = options.dir || '.';
     this.outputFilePath = options.outputFilePath || './prompt.md';
-
     this.fileTypeExclusions = new Set(
       options.fileTypeExclusions || fileTypeExclusions,
     );
-
     this.fileExclusions = options.fileExclusions || fileExclusions;
-
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
     this.verbose = options.verbose !== undefined ? options.verbose : true;
+    this.initialized = false;
   }
 
+  /**
+   * Initializes the MarkdownGenerator by loading all nested ignore files.
+   * This is automatically called before any file processing operations.
+   * @async
+   * @returns {Promise<void>}
+   */
+  private async initialize(): Promise<void> {
+    if (!this.initialized) {
+      await this.loadNestedIgnoreFiles();
+      this.initialized = true;
+    }
+  }
+
+  /**
+   * Loads and processes .code-tokenizer-md-ignore files recursively from the project directory.
+   * These files contain patterns for files to exclude from processing.
+   * @async
+   * @returns {Promise<void>}
+   * @throws {Error} When unable to read ignore files
+   */
+  /**
+   * Loads and processes .code-tokenizer-md-ignore files using ignore-walk.
+   * These files contain patterns for files to exclude from processing.
+   * @async
+   * @returns {Promise<void>}
+   * @throws {Error} When unable to read ignore files
+   */
+  /**
+   * Quickly loads patterns from .code-tokenizer-md-ignore files using Bun's native Glob.
+   * @async
+   * @returns {Promise<void>}
+   */
+  async loadNestedIgnoreFiles(): Promise<void> {
+    try {
+      if (this.verbose) {
+        console.log('Loading ignore patterns...');
+      }
+
+      const ignoreGlob = new Glob("**/.code-tokenizer-md-ignore");
+      const ignoreFiles: string[] = [];
+
+      // Use Bun's native glob to find ignore files
+      for await (const file of ignoreGlob.scan({
+        cwd: this.dir,
+        dot: true,
+        absolute: true,
+        followSymlinks: false,
+        onlyFiles: true
+      })) {
+        ignoreFiles.push(file);
+      }
+
+      if (this.verbose) {
+        console.log(`Found ${ignoreFiles.length} ignore files`);
+      }
+
+      // Process each ignore file
+      for (const ignoreFile of ignoreFiles) {
+        try {
+          const content = readFileSync(ignoreFile, 'utf-8');
+          const patterns = content
+            .split('\n')
+            .map(line => line.trim())
+            .filter(line => line && !line.startsWith('#'));
+
+          // Get relative patterns based on ignore file location
+          const ignoreFileDir = path.relative(this.dir, path.dirname(ignoreFile));
+          const relativePatterns = patterns.map(pattern => {
+            if (!pattern.startsWith('/') && !pattern.startsWith('**')) {
+              return path.join(ignoreFileDir, pattern).replace(/\\/g, '/');
+            }
+            return pattern;
+          });
+
+          this.fileExclusions.push(...relativePatterns);
+        } catch (error) {
+          if (this.verbose) {
+            console.error(`Error processing ignore file ${ignoreFile}:`, error);
+          }
+        }
+      }
+
+      // Remove duplicates
+      this.fileExclusions = [...new Set(this.fileExclusions)];
+
+      if (this.verbose) {
+        console.log(`Total exclusion patterns: ${this.fileExclusions.length}`);
+      }
+    } catch (error) {
+      if (this.verbose) {
+        console.error('Error loading nested ignore files:', error);
+      }
+      throw error;
+    }
+  }
   /**
    * Retrieves a list of files tracked by Git, excluding those specified in fileTypeExclusions and fileExclusions.
    * @async
@@ -57,13 +154,13 @@ export class MarkdownGenerator {
    * @throws {Error} When unable to execute git command or access files
    */
   async getTrackedFiles(): Promise<string[]> {
+    await this.initialize();
     try {
       const output = this.execCommand('git ls-files');
       const trackedFiles = output.split('\n').filter(file => file.trim().length > 0);
       if (this.verbose) {
         console.log(`Total tracked files: ${trackedFiles.length}`);
       }
-      // Use micromatch to filter out excluded files
       const filteredFiles = trackedFiles.filter(file => {
         const fileExt = path.extname(file).toLowerCase();
         return !this.fileTypeExclusions.has(fileExt) && !micromatch.isMatch(file, this.fileExclusions, { dot: true });
