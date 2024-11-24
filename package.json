@@ -1,6 +1,6 @@
 {
   "name": "code-tokenizer-md",
-  "version": "1.0.21",
+  "version": "1.1.2",
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
