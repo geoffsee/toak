@@ -1,6 +1,6 @@
 {
   "name": "code-tokenizer-md",
-  "version": "1.0.14",
+  "version": "1.0.21",
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -13,22 +13,23 @@
     }
   },
   "bin": {
-    "code-tokenizer-md": "./dist/cli.js"
+    "code-tokenizer-md": "./dist/code-tokenizer-md"
   },
   "files": [
     "dist"
   ],
   "types": "",
   "scripts": {
-    "build": "rm -rf dist && bun ./build.ts",
+    "build": "rm -rf dist && bun ./build.ts && bun build:cli",
+    "build:cli": "bun build ./src/cli.ts --compile --outfile dist/code-tokenizer-md",
     "test": "bun test",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "bun run build",
     "dev": "bun run .",
-    "deploy:dev": "bun run build && pnpm publish .",
+    "deploy:dev": "bun run build && bun publish .",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
-    "fix": "pnpm format && pnpm lint:fix"
+    "fix": "bun format && bun lint:fix"
   },
   "dependencies": {
     "llama3-tokenizer-js": "^1.0.0",
