@@ -2,8 +2,6 @@
   "name": "code-tokenizer-md",
   "version": "1.2.0",
   "type": "module",
-  "main": "src/index.ts",
-  "module": "src/index.ts",
   "license": "AGPL-3.0-or-later",
   "exports": {
     ".": {
