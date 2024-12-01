@@ -18,8 +18,7 @@
     "code-tokenizer-md": "./dist/cli.js"
   },
   "files": [
-    "dist",
-    "code-tokenizer-md.jpg"
+    "dist"
   ],
   "scripts": {
     "build": "rm -rf dist && bun build ./src/index.ts ./src/cli.ts --outdir dist --target node && bun ./build.ts",
