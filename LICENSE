@@ -1,0 +1,86 @@
+# GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3, 19 November 2007
+
+© 2024 Geoff Seemueller
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but **WITHOUT ANY WARRANTY**; without even the implied warranty of
+**MERCHANTABILITY** or **FITNESS FOR A PARTICULAR PURPOSE**. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see [https://www.gnu.org/licenses/](https://www.gnu.org/licenses/).
+
+## Additional Terms and Conditions
+
+The following additional terms supplement and modify the GNU Affero General Public License, version 3 ("AGPL-3.0"):
+
+### 1. Definitions
+
+- **"Software"** means the code-tokenizer-md software distributed by Licensor.
+- **"Derivative Work"** means any work that is based upon or derived from the Software.
+- **"Commercial Use"** means any use of the Software intended for or directed toward commercial advantage or monetary compensation.
+- **"Service"** means any cloud, hosted, or managed service that provides the functionality of the Software to third parties.
+- **"Contribution"** means any work submitted by You for inclusion in the Software.
+
+### 2. Grant of Rights
+
+Subject to the terms and conditions of this License, Licensor hereby grants You a worldwide, non-exclusive license to:
+
+(a) Use, reproduce, modify, display, and perform the Software.
+
+(b) Create Derivative Works of the Software.
+
+(c) Distribute the Software and Derivative Works.
+
+### 3. Conditions and Limitations
+
+You may **not**:
+
+(a) Offer the Software or any Derivative Work as a **Service** without a separate written agreement with Licensor.
+
+(b) Remove or obscure any licensing, copyright, or other notices included in the Software.
+
+### 4. Contributions
+
+Any **Contribution** intentionally submitted for inclusion in the Software shall be under the terms and conditions of this License, without any additional terms or conditions.
+
+### 5. AI and Machine Learning Use
+
+If Your Derivative Work is used in **machine learning or AI systems**, You must:
+
+(a) Document all modifications made to the original Software.
+
+(b) Provide clear notice to users when they interact with Your Derivative Work.
+
+(c) Share improvements to core algorithms under these same terms.
+
+### 6. Termination
+
+Your rights under this License terminate automatically if You breach any of its terms. Upon termination, You must cease all use and distribution of the Software and any Derivative Works.
+
+### 7. Disclaimer of Warranty
+
+The Software is provided "as is," without warranty of any kind. Licensor disclaims all warranties, express or implied, including but not limited to warranties of **merchantability**, **fitness for a particular purpose**, and **non-infringement**.
+
+### 8. Limitation of Liability
+
+In no event shall Licensor be liable for any indirect, incidental, special, exemplary, or consequential damages arising out of or in connection with the Software or the use of the Software.
+
+### 9. Severability
+
+If any provision of this License is held unenforceable, such provision shall be reformed only to the extent necessary to make it enforceable.
+
+### 10. Governing Law
+
+This License shall be governed by and construed in accordance with the laws of The United States of America, without regard to its conflict of law principles.
+
+### 11. Miscellaneous
+
+- **Waiver**: Failure by Licensor to enforce any provision of this License shall not constitute a waiver of future enforcement of that or any other provision.
+- **Entire Agreement**: This License constitutes the entire agreement between the parties with respect to the Software licensed here. It supersedes all prior or contemporaneous understandings regarding such subject matter.

@@ -1,17 +1,16 @@
 # code-tokenizer-md
 
-> Created to push creative limits. Processes git repository files into markdown with token counting and sensitive data redaction. 
+> Created to push creative limits. Processes git repository files into markdown with token counting and sensitive data redaction.
 
-## Quickstart
-```
+## Quick Start
+```bash
 $ cd your-git-repo
 $ npx code-tokenizer-md
 ```
-#### Next Steps: Refine your outputs with [.code-tokenizer-md-ignore](#ignore-file-configuration) 
 
 ## Overview
 
-`code-tokenizer-md` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts.
+`code-tokenizer-md` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
 
 ```mermaid
 graph TD
@@ -31,43 +30,41 @@ graph TD
 ## Features
 
 ### Data Processing
+- Reads tracked files from git repository
+- Removes comments, imports, and unnecessary whitespace
+- Redacts sensitive information (API keys, tokens, JWT, hashes)
+- Counts tokens using llama3-tokenizer-js
+- Supports nested .code-tokenizer-md-ignore files
 
-- Reads files from git repository
-- Removes comments and unnecessary whitespace
-- Redacts sensitive information (API keys, tokens, etc.)
-- Counts tokens using llama3-tokenizer
+### Token Cleaning
+- Removes single-line and multi-line comments
+- Strips console.log statements
+- Removes import statements
+- Cleans up whitespace and empty lines
 
-### Analysis Types
-
-- Token counting per file
-- Total token usage
-- File content analysis
-- Sensitive data detection
-
-### Data Presentation
-
-- Markdown formatted output
-- Code block formatting
-- Token count summaries
-- File organization hierarchy
+### Security Features
+- Redacts API keys and secrets
+- Masks JWT tokens
+- Hides authorization tokens
+- Redacts Base64 encoded strings
+- Masks cryptographic hashes
 
 ## Requirements
 
 - Node.js (>=14.0.0)
-- Bun runtime
 - Git repository
+- Bun runtime (for development)
 
 ## Installation
 
-```shell
+```bash
 npm install code-tokenizer-md
 ```
 
 ## Usage
 
 ### CLI
-
-```shell
+```bash
 npx code-tokenizer-md
 ```
 
@@ -79,26 +76,34 @@ import { MarkdownGenerator } from 'code-tokenizer-md';
 const generator = new MarkdownGenerator({
   dir: './project',
   outputFilePath: './output.md',
+  verbose: true
 });
 
 const result = await generator.createMarkdownDocument();
 ```
 
-`## Ignore File Configuration`
+## Configuration
 
-### .code-tokenizer-md-ignore
+### MarkdownGenerator Options
 
-The `.code-tokenizer-md-ignore` file allows you to specify patterns for files and directories that should be excluded from processing. You can create this file in any directory within your project, and it will affect that directory and all subdirectories.
-
-#### Features:
-
-- Supports nested ignore files (multiple .code-tokenizer-md-ignore files in different directories)
-- Uses glob patterns for matching
-- Inherits patterns from parent directories
-- Supports both relative and absolute paths
-
-Example `.code-tokenizer-md-ignore` file:
+```typescript
+interface MarkdownGeneratorOptions {
+  dir?: string;                    // Project directory (default: '.')
+  outputFilePath?: string;         // Output file path (default: './prompt.md')
+  fileTypeExclusions?: Set<string>;// File types to exclude
+  fileExclusions?: string[];      // File patterns to exclude
+  customPatterns?: Record<string, any>;      // Custom cleaning patterns
+  customSecretPatterns?: Record<string, any>;// Custom redaction patterns
+  verbose?: boolean;              // Enable verbose logging (default: true)
+}
 ```
+
+### Ignore File Configuration
+
+Create a `.code-tokenizer-md-ignore` file in any directory to specify exclusions. The tool supports nested ignore files that affect their directory and subdirectories.
+
+Example `.code-tokenizer-md-ignore`:
+```plaintext
 # Ignore specific files
 secrets.json
 config.private.ts
@@ -112,44 +117,68 @@ temp/
 **/._*
 ```
 
-#### Pattern Rules:
-- Lines starting with `#` are comments
-- Empty lines are ignored
-- Patterns are relative to the ignore file's location
-- Use `**` for matching across directories
-- Patterns without leading `/` or `**` are relative to the ignore file's directory
-- Patterns with leading `/` are relative to the project root
+#### Default Exclusions
 
-## Bundling Process
+The tool automatically excludes common file types and patterns:
 
-The project uses Bun's built-in bundler for creating optimized production builds. The bundling process includes:
+File Types:
+- Images: .jpg, .jpeg, .png, .gif, .bmp, .svg, .webp, etc.
+- Fonts: .ttf, .woff, .woff2, .eot, .otf
+- Binaries: .exe, .dll, .so, .dylib, .bin
+- Archives: .zip, .tar, .gz, .rar, .7z
+- Media: .mp3, .mp4, .avi, .mov, .wav
+- Data: .db, .sqlite, .sqlite3
+- Config: .lock, .yaml, .yml, .toml, .conf
 
-1. **Source Compilation**:
-    - TypeScript files are compiled using Bun's native TypeScript support
-    - Declaration files are generated using `bun-plugin-isolated-decl`
-    - Output is optimized for Node.js runtime
+File Patterns:
+- Configuration files: .*rc, tsconfig.json, package-lock.json
+- Version control: .git*, .hg*, .svn*
+- Environment files: .env*
+- Build outputs: build/, dist/, out/
+- Dependencies: node_modules/
+- Documentation: docs/, README*, CHANGELOG*
+- IDE settings: .idea/, .vscode/
+- Test files: test/, spec/, __tests__/
 
-2. **CLI Bundling**:
-    - Separate bundle for CLI usage
-    - Compiled to native binary for improved performance
-    - Includes shebang for direct execution
+## Development
 
-3. **Output Structure**:
-   ```
-   dist/
-   ├── index.js      # Main library bundle
-   ├── index.d.ts    # TypeScript declarations
-   └── code-tokenizer-md  # CLI executable
-   ```
+This project uses [Bun](https://bun.sh) for development. To contribute:
 
-4. **Bundle Configuration**:
-    - Target: Node.js
-    - Module Format: ESM
-    - Includes source maps
-    - Preserves path resolution
+### Setup
+```bash
+git clone <repository>
+cd code-tokenizer-md
+bun install
+```
 
-## Project Structure
+### Scripts
+```bash
+# Build the project
+bun run build
 
+# Run tests
+bun test
+
+# Lint code
+bun run lint
+
+# Fix linting issues
+bun run lint:fix
+
+# Format code
+bun run format
+
+# Fix all (format + lint)
+bun run fix
+
+# Development mode
+bun run dev
+
+# Publish development version
+bun run deploy:dev
+```
+
+### Project Structure
 ```
 src/
 ├── index.ts              # Main exports
@@ -160,86 +189,6 @@ src/
 └── fileTypeExclusions.ts # File type exclusions
 ```
 
-## Dependencies
-
-```json
-{
-  "dependencies": {
-    "llama3-tokenizer-js": "^1.0.0",
-    "micromatch": "^4.0.8"
-  },
-  "peerDependencies": {
-    "node": ">=14.0.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.14.0",
-    "eslint": "^9.14.0",
-    "globals": "^15.12.0",
-    "prettier": "^3.3.3",
-    "bun": "latest",
-    "@types/bun": "latest",
-    "@types/node": "^22.9.1",
-    "@types/micromatch": "^4.0.9"
-  }
-}
-```
-
-## Development
-
-This project uses [bun](https://github.com/oven-sh/bun) for its toolchain. You should be able to use whatever you want as a consumer of the library.
-
-### Building
-```shell
-npm run build
-```
-
-### Testing
-
-```shell
-npm test
-```
-
-### Linting and Formatting
-
-```shell
-# Lint
-npm run lint
-
-# Fix linting issues
-npm run lint:fix
-
-# Format code
-npm run format
-
-# Fix all (format + lint)
-npm run fix
-```
-
-## Extending
-
-### Adding Custom Patterns
-
-```typescript
-const generator = new MarkdownGenerator({
-  customPatterns: [{ regex: /TODO:/g, replacement: '' }],
-  customSecretPatterns: [{ regex: /mySecret/g, replacement: '[REDACTED]' }],
-});
-```
-
-### Configuration Options
-
-```typescript
-interface MarkdownGeneratorOptions {
-  dir?: string;               // Project directory
-  outputFilePath?: string;    // Output markdown file path
-  fileTypeExclusions?: Set<string>;  // File types to exclude
-  fileExclusions?: string[];  // File patterns to exclude
-  customPatterns?: Record<string, any>;  // Custom cleaning patterns
-  customSecretPatterns?: Record<string, any>;  // Custom redaction patterns
-  verbose?: boolean;          // Enable verbose logging
-}
-```
-
 ## Contributing
 
 1. Fork the repository
@@ -248,18 +197,21 @@ interface MarkdownGeneratorOptions {
 4. Push to the branch
 5. Open a Pull Request
 
-### Contribution Guidelines
-
+### Guidelines
 - Write TypeScript code following the project's style
 - Include appropriate error handling
 - Add documentation for new features
 - Include tests for new functionality
 - Update the README for significant changes
 
-## License
-
-MIT © 2024 Geoff Seemueller
 
 ## Note
 
-This tool requires a git repository to function properly.
+This tool requires a git repository to function properly as it uses `git ls-files` to identify tracked files.
+
+## License
+
+### GNU AFFERO GENERAL PUBLIC LICENSE
+Version 3, 19 November 2007
+© 2024 Geoff Seemueller
+
