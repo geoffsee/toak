@@ -2,7 +2,7 @@ import isolatedDecl from 'bun-plugin-isolated-decl';
 
 // handles building the library
 await Bun.build({
-  entrypoints: ['./src/index.ts'],
+  entrypoints: ['./src/*.ts'],
   outdir: './dist',
   target: 'node',
   plugins: [

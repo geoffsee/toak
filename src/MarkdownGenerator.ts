@@ -1,5 +1,3 @@
-// MarkdownGenerator.ts
-
 import path from 'path';
 import { execSync } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
@@ -9,7 +7,7 @@ import * as micromatch from 'micromatch';
 import fileTypeExclusions from './fileTypeExclusions.js';
 import fileExclusions from './fileExclusions.js';
 import { readFileSync } from 'node:fs';
-import { Glob } from 'bun';
+import { glob } from 'glob';
 
 
 interface MarkdownGeneratorOptions {
@@ -72,37 +70,19 @@ export class MarkdownGenerator {
    * @returns {Promise<void>}
    * @throws {Error} When unable to read ignore files
    */
-  /**
-   * Loads and processes .code-tokenizer-md-ignore files using ignore-walk.
-   * These files contain patterns for files to exclude from processing.
-   * @async
-   * @returns {Promise<void>}
-   * @throws {Error} When unable to read ignore files
-   */
-  /**
-   * Quickly loads patterns from .code-tokenizer-md-ignore files using Bun's native Glob.
-   * @async
-   * @returns {Promise<void>}
-   */
   async loadNestedIgnoreFiles(): Promise<void> {
     try {
       if (this.verbose) {
         console.log('Loading ignore patterns...');
       }
 
-      const ignoreGlob = new Glob("**/.code-tokenizer-md-ignore");
-      const ignoreFiles: string[] = [];
-
-      // Use Bun's native glob to find ignore files
-      for await (const file of ignoreGlob.scan({
+      const ignoreFiles = await glob('**/.code-tokenizer-md-ignore', {
         cwd: this.dir,
         dot: true,
         absolute: true,
-        followSymlinks: false,
-        onlyFiles: true
-      })) {
-        ignoreFiles.push(file);
-      }
+        follow: false,
+        nodir: true
+      });
 
       if (this.verbose) {
         console.log(`Found ${ignoreFiles.length} ignore files`);
@@ -147,6 +127,7 @@ export class MarkdownGenerator {
       throw error;
     }
   }
+
   /**
    * Retrieves a list of files tracked by Git, excluding those specified in fileTypeExclusions and fileExclusions.
    * @async

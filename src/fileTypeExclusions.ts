@@ -1,4 +1,4 @@
-export default [
+const filetypeExclusions = [
   // Images
   '.jpg',
   '.jpeg',
@@ -57,4 +57,6 @@ export default [
   '.db',
   '.sqlite',
   '.sqlite3'
-]
+] as const;
+
+export default filetypeExclusions;

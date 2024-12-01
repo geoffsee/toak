@@ -1,6 +1,6 @@
 {
   "name": "code-tokenizer-md",
-  "version": "1.1.2",
+  "version": "1.1.6",
   "type": "module",
   "main": "src/index.ts",
   "module": "src/index.ts",
@@ -13,15 +13,13 @@
     }
   },
   "bin": {
-    "code-tokenizer-md": "./dist/code-tokenizer-md"
+    "code-tokenizer-md": "./dist/cli.js"
   },
   "files": [
     "dist"
   ],
-  "types": "",
   "scripts": {
-    "build": "rm -rf dist && bun ./build.ts && bun build:cli",
-    "build:cli": "bun build ./src/cli.ts --compile --outfile dist/code-tokenizer-md",
+    "build": "rm -rf dist && bun build ./src/index.ts ./src/cli.ts --outdir dist --target node && bun ./build.ts",
     "test": "bun test",
     "prepublishOnly": "bun run build",
     "dev": "bun run .",
@@ -32,6 +30,7 @@
     "fix": "bun format && bun lint:fix"
   },
   "dependencies": {
+    "glob": "^11.0.0",
     "llama3-tokenizer-js": "^1.0.0",
     "micromatch": "^4.0.8"
   },
