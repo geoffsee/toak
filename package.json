@@ -1,8 +1,11 @@
 {
   "name": "code-tokenizer-md",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "type": "module",
   "license": "AGPL-3.0-or-later",
+  "repository": "https://github.com/geoffsee/code-tokenizer-md.git",
+  "author": "Geoff Seemueller",
+  "description": "Open-source CLI/Library for turning a git repository's contents into a single well-formatted markdown file.",
   "exports": {
     ".": {
       "import": {
