@@ -1,6 +1,8 @@
 # code-tokenizer-md
 
-> Created to push creative limits. Processes git repository files into markdown with token counting and sensitive data redaction.
+![code-tokenizer-md](./code-tokenizer-md.jpg)
+
+> Push the limits of possible 
 
 ## Quick Start
 ```bash
@@ -11,6 +13,10 @@ $ npx code-tokenizer-md
 ## Overview
 
 `code-tokenizer-md` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
+
+## Philosophy
+> Human-first technologies for a better tomorrow.
+
 
 ```mermaid
 graph TD
