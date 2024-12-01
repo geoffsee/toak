@@ -1,7 +1,7 @@
 // test/core.test.ts
 import { describe, it, expect, beforeEach, spyOn } from 'bun:test';
 import { TokenCleaner, MarkdownGenerator } from '../src';
-import micromatch from 'micromatch';
+import * as micromatch from 'micromatch';
 import llama3Tokenizer from 'llama3-tokenizer-js';
 import path from 'path';
 import fs from 'fs/promises';
