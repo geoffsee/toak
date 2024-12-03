@@ -1,6 +1,6 @@
 {
   "name": "code-tokenizer-md",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "repository": "https://github.com/geoffsee/code-tokenizer-md.git",
@@ -20,6 +20,7 @@
   "files": [
     "dist"
   ],
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "rm -rf dist && bun build ./src/index.ts ./src/cli.ts --splitting --outdir dist --target node && bun ./build.ts",
     "test": "bun test",
