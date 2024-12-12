@@ -1,11 +1,11 @@
 {
-  "name": "code-tokenizer-md",
-  "version": "1.2.7",
+  "name": "toak",
+  "version": "3.0.0",
   "type": "module",
   "license": "AGPL-3.0-or-later",
-  "repository": "https://github.com/geoffsee/code-tokenizer-md.git",
+  "repository": "https://github.com/seemueller-io/toak.git",
   "author": "Geoff Seemueller",
-  "description": "Open-source CLI/Library for turning a git repository's contents into a single well-formatted markdown file.",
+  "description": "Open-source CLI/Library for tokenizing a git repository into a markdown file.",
   "exports": {
     ".": {
       "import": {
@@ -15,7 +15,7 @@
     }
   },
   "bin": {
-    "code-tokenizer-md": "./dist/cli.js"
+    "toak": "./dist/cli.js"
   },
   "files": [
     "dist"

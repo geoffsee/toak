@@ -1,23 +1,22 @@
-# code-tokenizer-md
-for me but you can use it too
+# toak
 
-![code-tokenizer-md](./code-tokenizer-md.jpg)
-
-> Push the limits of possible 
-
-## Quick Start
-```bash
+```shell
 $ cd your-git-repo
-$ npx code-tokenizer-md
+$ npx toak
 ```
+
+![toak](./toak.jpg)
+
 
 ## Overview
 
-`code-tokenizer-md` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
+`toak` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
 
+---
 ## Philosophy
 > Human-first technologies for a better tomorrow.
 
+---
 
 ```mermaid
 graph TD
@@ -41,7 +40,7 @@ graph TD
 - Removes comments, imports, and unnecessary whitespace
 - Redacts sensitive information (API keys, tokens, JWT, hashes)
 - Counts tokens using llama3-tokenizer-js
-- Supports nested .code-tokenizer-md-ignore files
+- Supports nested .toak-ignore files
 
 ### Token Cleaning
 - Removes single-line and multi-line comments
@@ -65,20 +64,20 @@ graph TD
 ## Installation
 
 ```bash
-npm install code-tokenizer-md
+npm install toak
 ```
 
 ## Usage
 
 ### CLI
 ```bash
-npx code-tokenizer-md
+npx toak
 ```
 
 ### Programmatic Usage
 
 ```typescript
-import { MarkdownGenerator } from 'code-tokenizer-md';
+import { MarkdownGenerator } from 'toak';
 
 const generator = new MarkdownGenerator({
   dir: './project',
@@ -107,9 +106,9 @@ interface MarkdownGeneratorOptions {
 
 ### Ignore File Configuration
 
-Create a `.code-tokenizer-md-ignore` file in any directory to specify exclusions. The tool supports nested ignore files that affect their directory and subdirectories.
+Create a `.toak-ignore` file in any directory to specify exclusions. The tool supports nested ignore files that affect their directory and subdirectories.
 
-Example `.code-tokenizer-md-ignore`:
+Example `.toak-ignore`:
 ```plaintext
 # Ignore specific files
 secrets.json
@@ -154,7 +153,7 @@ This project uses [Bun](https://bun.sh) for development. To contribute:
 ### Setup
 ```bash
 git clone <repository>
-cd code-tokenizer-md
+cd toak
 bun install
 ```
 

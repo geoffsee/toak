@@ -64,7 +64,7 @@ export class MarkdownGenerator {
   }
 
   /**
-   * Loads and processes .code-tokenizer-md-ignore files recursively from the project directory.
+   * Loads and processes .toak-ignore files recursively from the project directory.
    * These files contain patterns for files to exclude from processing.
    * @async
    * @returns {Promise<void>}
@@ -76,7 +76,7 @@ export class MarkdownGenerator {
         console.log('Loading ignore patterns...');
       }
 
-      const ignoreFiles = await glob('**/.code-tokenizer-md-ignore', {
+      const ignoreFiles = await glob('**/.toak-ignore', {
         cwd: this.dir,
         dot: true,
         absolute: true,
