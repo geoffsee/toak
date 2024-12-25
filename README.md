@@ -1,37 +1,22 @@
 # toak
 
+## Overview
+
+`toak` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
+
 ```shell
 $ cd your-git-repo
 $ npx toak
 ```
 
-![toak](./toak.jpg)
-
-
-## Overview
-
-`toak` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
+![toak](https://github.com/seemueller-io/toak/blob/471c2a359e342c0103d2074650afe1f1b2b5f71d/toak.jpg?raw=true)
 
 ---
+
 ## Philosophy
-> Human-first technologies for a better tomorrow.
+_Human-first_ technologies for a better future.
 
 ---
-
-```mermaid
-graph TD
-   Start[Start] -->|Read| Git[Git Files]
-   Git -->|Clean| TC[TokenCleaner]
-   TC -->|Redact| Clean[Clean Code]
-   Clean -->|Generate| MD[Markdown]
-   MD -->|Count| Results[Token Counts]
-   style Start fill:#000000,stroke:#FFFFFF,stroke-width:4px,color:#ffffff
-   style Git fill:#222222,stroke:#FFFFFF,stroke-width:2px,color:#ffffff
-   style TC fill:#333333,stroke:#FFFFFF,stroke-width:2px,color:#ffffff
-   style Clean fill:#444444,stroke:#FFFFFF,stroke-width:2px,color:#ffffff
-   style MD fill:#555555,stroke:#FFFFFF,stroke-width:2px,color:#ffffff
-   style Results fill:#666666,stroke:#FFFFFF,stroke-width:2px,color:#ffffff
-```
 
 ## Features
 
