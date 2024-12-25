@@ -2,7 +2,7 @@
 
 ## Overview
 
-`toak` is a tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
+`toak` is an intentionally simple yet powerful tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
 
 ```shell
 $ cd your-git-repo
@@ -13,7 +13,7 @@ $ npx toak
 
 ## Philosophy
 1. _Human-first_ technologies for a better future.
-2. If you don't like the name, you will at least remember it.
+2. If you don't like the name...good.
 ---
 
 ## Features
