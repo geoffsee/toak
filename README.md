@@ -11,11 +11,9 @@ $ npx toak
 
 ![toak](https://github.com/seemueller-io/toak/blob/471c2a359e342c0103d2074650afe1f1b2b5f71d/toak.jpg?raw=true)
 
----
-
 ## Philosophy
-_Human-first_ technologies for a better future.
-
+1. _Human-first_ technologies for a better future.
+2. If you don't like the name, you will at least remember it.
 ---
 
 ## Features
