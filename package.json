@@ -1,11 +1,25 @@
 {
   "name": "toak",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "repository": "https://github.com/seemueller-io/toak.git",
   "author": "Geoff Seemueller",
   "description": "Open-source CLI/Library for tokenizing a git repository into a markdown file.",
+  "keywords": [
+    "cli",
+    "tool",
+    "utility",
+    "tokenize",
+    "git",
+    "repository",
+    "code",
+    "export",
+    "markdown",
+    "prompt",
+    "ai",
+    "llm"
+  ],
   "exports": {
     ".": {
       "import": {
