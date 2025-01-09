@@ -175,7 +175,7 @@ export class MarkdownGenerator {
         const tokenCount = llama3Tokenizer.encode(cleanedAndRedactedContent).length;
         console.log(`${filePath}: Tokens[${tokenCount}]`);
       }
-      return cleanedAndRedactedContent;
+      return  cleanedAndRedactedContent.trimEnd();
     } catch (error) {
       if (this.verbose) {
         console.error(`Error reading file ${filePath}:`, error);
