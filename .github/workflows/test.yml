@@ -1,8 +1,11 @@
-name: Publish
+name: Test
 
 on:
-  release:
-    types: [created]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, reopened]
 
 jobs:
   publish:
@@ -14,9 +17,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install
 
-      - name: Publish
-        run: bun publish
-        env:
-          BUN_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Test
+        run: bun test
