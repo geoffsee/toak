@@ -1,4 +1,7 @@
 # toak
+[![npm version](https://img.shields.io/npm/v/toak)](https://www.npmjs.com/package/toak)
+![Tests](https://github.com/seemueller-io/toak/actions/workflows/test.yml/badge.svg)
+
 
 ## Overview
 
