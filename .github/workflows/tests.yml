@@ -1,5 +1,10 @@
 name: Tests
-
+permissions:
+  pull-requests: write
+  statuses: write
+  checks: write
+  contents: read
+  actions: read
 on:
   push:
     branches: [main]
@@ -11,6 +16,8 @@ on:
 
 jobs:
   tests:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
