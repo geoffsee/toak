@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [main]
     types: [opened, reopened]
+    merge_group: # triggers workflow for merge queue
+      types: [checks_requested]
 
 jobs:
   tests:
