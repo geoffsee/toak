@@ -238,6 +238,23 @@ export class MarkdownGenerator {
     }
   }
 
+  async getRootIgnore(): Promise<string> {
+    const rootIgnorePath = path.join(this.dir, '.toak-ignore');
+    try {
+      return await readFile(rootIgnorePath, 'utf-8');
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        // File does not exist
+        if (this.verbose) {
+          console.log('File not found, creating a root \'.toak-ignore\' file.');
+        }
+        await writeFile(rootIgnorePath, 'todo\nprompt.md'); // Create an empty 'todo' file
+        return await this.getRootIgnore(); // Await the recursive call
+      }
+      throw error;
+    }
+  }
+
   /**
    * Creates a complete markdown document combining code documentation and todos.
    * @async
@@ -251,6 +268,7 @@ export class MarkdownGenerator {
     try {
       const codeMarkdown = await this.generateMarkdown();
       const todos = await this.getTodo();
+      const _ = await this.getRootIgnore();
       const markdown = codeMarkdown + `\n---\n\n${todos}\n`;
       await writeFile(this.outputFilePath, markdown);
       if (this.verbose) {

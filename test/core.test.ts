@@ -353,6 +353,34 @@ const a = 1;
     });
   });
 
+  describe('getRootIgnore', () => {
+
+    it('should create root ignore file if it does not exist', async () => {
+      const rootIgnorePath = path.join('.', '.toak-ignore');
+
+      // First call to readFile throws ENOENT, second call resolves to empty string
+      const readFileSpy = spyOn(fs, 'readFile')
+        .mockImplementationOnce(() => {
+          const error: any = new Error('File not found');
+          error.code = 'ENOENT';
+          return Promise.reject(error);
+        })
+        .mockResolvedValueOnce('');
+
+      // Spy on fs.writeFile
+      const writeFileSpy = spyOn(fs, 'writeFile').mockResolvedValue(undefined);
+
+      const rootIgnore = await markdownGenerator.getRootIgnore();
+      expect(readFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'utf-8');
+      expect(writeFileSpy).toHaveBeenCalledWith(rootIgnorePath, '');
+      expect(rootIgnore).toBe('');
+
+      // Restore the original implementations
+      readFileSpy.mockRestore();
+      writeFileSpy.mockRestore();
+    });
+  });
+
   describe('createMarkdownDocument', () => {
     it('should create markdown document successfully', async () => {
       const mockContent = '# Project Files\n\n## test.txt\n~~~\ntest\n~~~\n\n';
