@@ -372,7 +372,7 @@ const a = 1;
 
       const rootIgnore = await markdownGenerator.getRootIgnore();
       expect(readFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'utf-8');
-      expect(writeFileSpy).toHaveBeenCalledWith(rootIgnorePath, '');
+      expect(writeFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'todo\nprompt.md');
       expect(rootIgnore).toBe('');
 
       // Restore the original implementations
