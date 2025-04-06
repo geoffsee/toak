@@ -122,7 +122,7 @@ File Types:
 - Archives: .zip, .tar, .gz, .rar, .7z
 - Media: .mp3, .mp4, .avi, .mov, .wav
 - Data: .db, .sqlite, .sqlite3
-- Config: .lock, .yaml, .yml, .toml, .conf
+- Config: .lock
 
 File Patterns:
 - Configuration files: .*rc, tsconfig.json, package-lock.json
