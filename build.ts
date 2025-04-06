@@ -11,6 +11,7 @@ await Bun.build({
     "src/TokenCleaner.ts"
   ],
   outdir: './dist',
+  minify: true,
   target: 'node',
   splitting: true,
   plugins: [
