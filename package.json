@@ -44,7 +44,8 @@
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
-    "fix": "bun format && bun lint:fix"
+    "fix": "bun format && bun lint:fix",
+    "release": "bunx release-it"
   },
   "dependencies": {
     "glob": "^11.0.0",
@@ -66,5 +67,17 @@
     "oxc-transform": "^0.44.0",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3"
+  },
+  "release-it": {
+    "$schema": "https://unpkg.com/release-it/schema/release-it.json",
+    "git": {
+      "commitMessage": "Release v${version}"
+    },
+    "github": {
+      "release": true
+    },
+    "npm": {
+      "release": true
+    }
   }
 }
