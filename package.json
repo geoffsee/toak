@@ -36,7 +36,7 @@
   ],
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rm -rf dist && bun build ./src/index.ts ./src/cli.ts --splitting --outdir dist --target node && bun ./build.ts",
+    "build": "rm -rf dist && bun ./build.ts",
     "test": "bun test",
     "prepublishOnly": "bun run build",
     "dev": "bun run .",
