@@ -22,10 +22,10 @@ const filetypeExclusions = [
   '.lockb',
 
   // Config files
-  '.yaml',
-  '.yml',
-  '.toml',
-  '.conf',
+  // '.yaml',
+  // '.yml',
+  // '.toml',
+  // '.conf',
 
   // Binary and compiled
   '.exe',
