@@ -8,6 +8,7 @@ import fileTypeExclusions from './fileTypeExclusions.js';
 import fileExclusions from './fileExclusions.js';
 import { readFileSync } from 'node:fs';
 import { glob } from 'glob';
+import { isPreset, type PresetPrompt, prompts } from './prompts.ts';
 
 
 interface MarkdownGeneratorOptions {
@@ -18,6 +19,7 @@ interface MarkdownGeneratorOptions {
   customPatterns?: Record<string, any>;
   customSecretPatterns?: Record<string, any>;
   verbose?: boolean;
+  todoPrompt?: string
 }
 
 /**
@@ -33,6 +35,7 @@ export class MarkdownGenerator {
   private tokenCleaner: TokenCleaner;
   private verbose: boolean;
   private initialized: boolean;
+  private todoPrompt: string;
 
   /**
    * Creates an instance of MarkdownGenerator.
@@ -44,10 +47,11 @@ export class MarkdownGenerator {
     this.fileTypeExclusions = new Set(
       options.fileTypeExclusions || fileTypeExclusions,
     );
-    this.fileExclusions = options.fileExclusions || fileExclusions;
+    this.fileExclusions = options.fileExclusions || [...fileExclusions];
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
     this.verbose = options.verbose !== undefined ? options.verbose : true;
     this.initialized = false;
+    this.todoPrompt = prompts.getPrompt(options.todoPrompt)
   }
 
   /**
@@ -228,7 +232,7 @@ export class MarkdownGenerator {
         if (this.verbose) {
           console.log('File not found, creating a new \'todo\' file.');
         }
-        await writeFile(todoPath, ''); // Create an empty 'todo' file
+        await writeFile(todoPath, todoPrompt); // Create an empty 'todo' file
         return await this.getTodo(); // Await the recursive call
       }
       if (this.verbose) {
