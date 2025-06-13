@@ -45,7 +45,9 @@
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
     "fix": "bun format && bun lint:fix",
-    "release": "bunx release-it"
+    "release": "bunx release-it",
+    "run:inference": "./google_gemma-3-1b-it-Q6_K.llamafile --server --nobrowser",
+    "download:inference": "./download_optimization_model.sh"
   },
   "dependencies": {
     "glob": "^11.0.1",
