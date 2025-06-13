@@ -64,6 +64,7 @@ export class MarkdownGenerator {
   private async initialize(): Promise<void> {
     if (!this.initialized) {
       await this.loadNestedIgnoreFiles();
+      await this.updateGitignore();
       this.initialized = true;
     }
   }
@@ -255,6 +256,58 @@ export class MarkdownGenerator {
         }
         await writeFile(rootIgnorePath, 'todo\nprompt.md'); // Create an empty 'todo' file
         return await this.getRootIgnore(); // Await the recursive call
+      }
+      throw error;
+    }
+  }
+
+  async updateGitignore(): Promise<void> {
+    const gitignorePath = path.join(this.dir, '.gitignore');
+    try {
+      let content = '';
+      try {
+        content = await readFile(gitignorePath, 'utf-8');
+      } catch (error: any) {
+        if (error.code === 'ENOENT') {
+          // .gitignore doesn't exist, create it
+          if (this.verbose) {
+            console.log('File not found, creating a \'.gitignore\' file.');
+          }
+          content = '';
+        } else {
+          throw error;
+        }
+      }
+
+      // Check if entries already exist
+      const lines = content.split('\n');
+      const needsPromptMd = !lines.some(line => line.trim() === 'prompt.md');
+      const needsToakIgnore = !lines.some(line => line.trim() === '.toak-ignore');
+
+      // Add entries if needed
+      if (needsPromptMd || needsToakIgnore) {
+        if (this.verbose) {
+          console.log('Updating .gitignore with prompt.md and .toak-ignore');
+        }
+
+        let newContent = content;
+        if (newContent && !newContent.endsWith('\n')) {
+          newContent += '\n';
+        }
+
+        if (needsPromptMd) {
+          newContent += 'prompt.md\n';
+        }
+
+        if (needsToakIgnore) {
+          newContent += '.toak-ignore\n';
+        }
+
+        await writeFile(gitignorePath, newContent);
+      }
+    } catch (error) {
+      if (this.verbose) {
+        console.error('Error updating .gitignore:', error);
       }
       throw error;
     }

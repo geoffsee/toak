@@ -50,8 +50,8 @@ const a = 1;`;
 
     it('should trim whitespace and empty lines', () => {
       const code = `const a = 1;  
-    
-    
+
+
 const b = 2;  `;
       const expected = `const a = 1;
 const b = 2;`;
@@ -374,6 +374,88 @@ const a = 1;
       expect(readFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'utf-8');
       expect(writeFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'todo\nprompt.md');
       expect(rootIgnore).toBe('');
+
+      // Restore the original implementations
+      readFileSpy.mockRestore();
+      writeFileSpy.mockRestore();
+    });
+  });
+
+  describe('updateGitignore', () => {
+    it('should update .gitignore with prompt.md and .toak-ignore on first run', async () => {
+      const gitignorePath = path.join('.', '.gitignore');
+
+      // Mock readFile to simulate .gitignore exists but doesn't have the entries
+      const readFileSpy = spyOn(fs, 'readFile').mockResolvedValue('node_modules\ndist\n');
+
+      // Spy on fs.writeFile
+      const writeFileSpy = spyOn(fs, 'writeFile').mockResolvedValue(undefined);
+
+      // Call the method
+      await markdownGenerator.updateGitignore();
+
+      // Verify readFile was called
+      expect(readFileSpy).toHaveBeenCalledWith(gitignorePath, 'utf-8');
+
+      // Verify writeFile was called with correct content
+      expect(writeFileSpy).toHaveBeenCalledWith(
+        gitignorePath, 
+        'node_modules\ndist\nprompt.md\n.toak-ignore\n'
+      );
+
+      // Restore the original implementations
+      readFileSpy.mockRestore();
+      writeFileSpy.mockRestore();
+    });
+
+    it('should not update .gitignore if entries already exist', async () => {
+      const gitignorePath = path.join('.', '.gitignore');
+
+      // Mock readFile to simulate .gitignore already has the entries
+      const readFileSpy = spyOn(fs, 'readFile')
+        .mockResolvedValue('node_modules\ndist\nprompt.md\n.toak-ignore\n');
+
+      // Spy on fs.writeFile
+      const writeFileSpy = spyOn(fs, 'writeFile').mockResolvedValue(undefined);
+
+      // Call the method
+      await markdownGenerator.updateGitignore();
+
+      // Verify readFile was called
+      expect(readFileSpy).toHaveBeenCalledWith(gitignorePath, 'utf-8');
+
+      // Verify writeFile was NOT called
+      expect(writeFileSpy).not.toHaveBeenCalled();
+
+      // Restore the original implementations
+      readFileSpy.mockRestore();
+      writeFileSpy.mockRestore();
+    });
+
+    it('should create .gitignore if it does not exist', async () => {
+      const gitignorePath = path.join('.', '.gitignore');
+
+      // Mock readFile to throw ENOENT error
+      const readFileSpy = spyOn(fs, 'readFile').mockImplementation(() => {
+        const error: any = new Error('File not found');
+        error.code = 'ENOENT';
+        return Promise.reject(error);
+      });
+
+      // Spy on fs.writeFile
+      const writeFileSpy = spyOn(fs, 'writeFile').mockResolvedValue(undefined);
+
+      // Call the method
+      await markdownGenerator.updateGitignore();
+
+      // Verify readFile was called
+      expect(readFileSpy).toHaveBeenCalledWith(gitignorePath, 'utf-8');
+
+      // Verify writeFile was called with correct content
+      expect(writeFileSpy).toHaveBeenCalledWith(
+        gitignorePath, 
+        'prompt.md\n.toak-ignore\n'
+      );
 
       // Restore the original implementations
       readFileSpy.mockRestore();
