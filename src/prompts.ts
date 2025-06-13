@@ -1,12 +1,19 @@
 const taskConditionsStandard_FixErrors = `
-TASK: Fix these errors.
-CONDITIONS: Output labeled and fully fixed files only, no diffs.
-STANDARD: Respond with the files, no examples or excessive explanations.
+## Task
+1. Fix these errors.
+## Conditions
+2. Output labeled and fully fixed files only, no diffs.
+## Standard
+3. Respond with the files, no examples or excessive explanations.
 
 ~~~console
-
+clean up your errors and put them here
 ~~~
 `;
+
+
+
+
 
 
 export const customPrompts: Record<string, string> = {
