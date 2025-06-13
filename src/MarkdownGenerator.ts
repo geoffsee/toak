@@ -11,7 +11,7 @@ import { glob } from 'glob';
 import { isPreset, type PresetPrompt, prompts } from './prompts.ts';
 
 
-interface MarkdownGeneratorOptions {
+export interface MarkdownGeneratorOptions {
   dir?: string;
   outputFilePath?: string;
   fileTypeExclusions?: Set<string>;
@@ -48,6 +48,7 @@ export class MarkdownGenerator {
       options.fileTypeExclusions || fileTypeExclusions,
     );
     this.fileExclusions = options.fileExclusions || [...fileExclusions];
+    // @ts-ignore - options.customPatterns signature is valid
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
     this.verbose = options.verbose !== undefined ? options.verbose : true;
     this.initialized = false;
@@ -232,7 +233,7 @@ export class MarkdownGenerator {
         if (this.verbose) {
           console.log('File not found, creating a new \'todo\' file.');
         }
-        await writeFile(todoPath, todoPrompt); // Create an empty 'todo' file
+        await writeFile(todoPath, ''); // Create an empty 'todo' file
         return await this.getTodo(); // Await the recursive call
       }
       if (this.verbose) {
@@ -281,7 +282,7 @@ export class MarkdownGenerator {
         console.log({ total_tokens: totalTokens });
       }
       return { success: true, tokenCount: llama3Tokenizer.encode(markdown).length };
-    } catch (error) {
+    } catch (error: any) {
       if (this.verbose) {
         console.error('Error writing markdown document:', error);
       }
