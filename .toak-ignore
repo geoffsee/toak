@@ -1,4 +1,0 @@
-# This is just for testing to make sure the glob patterns work
-# Check is valid when test-for-ignore.css is not included in the program output
-**/*.css
-**/.toak-ignore
