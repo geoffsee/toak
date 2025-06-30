@@ -1,6 +1,7 @@
 /.idea/
 /node_modules/
-/dist/
+dist/
 prompt.md
 todo
 .toak-ignore
+**/*.llamafile
