@@ -1,0 +1,24 @@
+name: Code Review
+
+permissions:
+  pull-requests: write
+  statuses: write
+  checks: write
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ci-dev]
+
+jobs:
+  code_review:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: geoffsee/toakinize@v1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
