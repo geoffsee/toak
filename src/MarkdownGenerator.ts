@@ -8,9 +8,10 @@ import fileTypeExclusions from './fileTypeExclusions.js';
 import fileExclusions from './fileExclusions.js';
 import { readFileSync } from 'node:fs';
 import { glob } from 'glob';
+import { isPreset, type PresetPrompt, prompts } from './prompts.ts';
 
 
-interface MarkdownGeneratorOptions {
+export interface MarkdownGeneratorOptions {
   dir?: string;
   outputFilePath?: string;
   fileTypeExclusions?: Set<string>;
@@ -18,6 +19,7 @@ interface MarkdownGeneratorOptions {
   customPatterns?: Record<string, any>;
   customSecretPatterns?: Record<string, any>;
   verbose?: boolean;
+  todoPrompt?: string
 }
 
 /**
@@ -33,6 +35,7 @@ export class MarkdownGenerator {
   private tokenCleaner: TokenCleaner;
   private verbose: boolean;
   private initialized: boolean;
+  private todoPrompt: string;
 
   /**
    * Creates an instance of MarkdownGenerator.
@@ -44,10 +47,12 @@ export class MarkdownGenerator {
     this.fileTypeExclusions = new Set(
       options.fileTypeExclusions || fileTypeExclusions,
     );
-    this.fileExclusions = options.fileExclusions || fileExclusions;
+    this.fileExclusions = options.fileExclusions || [...fileExclusions];
+    // @ts-ignore - options.customPatterns signature is valid
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
     this.verbose = options.verbose !== undefined ? options.verbose : true;
     this.initialized = false;
+    this.todoPrompt = prompts.getPrompt(options.todoPrompt)
   }
 
   /**
@@ -59,6 +64,7 @@ export class MarkdownGenerator {
   private async initialize(): Promise<void> {
     if (!this.initialized) {
       await this.loadNestedIgnoreFiles();
+      await this.updateGitignore();
       this.initialized = true;
     }
   }
@@ -255,6 +261,58 @@ export class MarkdownGenerator {
     }
   }
 
+  async updateGitignore(): Promise<void> {
+    const gitignorePath = path.join(this.dir, '.gitignore');
+    try {
+      let content = '';
+      try {
+        content = await readFile(gitignorePath, 'utf-8');
+      } catch (error: any) {
+        if (error.code === 'ENOENT') {
+          // .gitignore doesn't exist, create it
+          if (this.verbose) {
+            console.log('File not found, creating a \'.gitignore\' file.');
+          }
+          content = '';
+        } else {
+          throw error;
+        }
+      }
+
+      // Check if entries already exist
+      const lines = content.split('\n');
+      const needsPromptMd = !lines.some(line => line.trim() === 'prompt.md');
+      const needsToakIgnore = !lines.some(line => line.trim() === '.toak-ignore');
+
+      // Add entries if needed
+      if (needsPromptMd || needsToakIgnore) {
+        if (this.verbose) {
+          console.log('Updating .gitignore with prompt.md and .toak-ignore');
+        }
+
+        let newContent = content;
+        if (newContent && !newContent.endsWith('\n')) {
+          newContent += '\n';
+        }
+
+        if (needsPromptMd) {
+          newContent += 'prompt.md\n';
+        }
+
+        if (needsToakIgnore) {
+          newContent += '.toak-ignore\n';
+        }
+
+        await writeFile(gitignorePath, newContent);
+      }
+    } catch (error) {
+      if (this.verbose) {
+        console.error('Error updating .gitignore:', error);
+      }
+      throw error;
+    }
+  }
+
   /**
    * Creates a complete markdown document combining code documentation and todos.
    * @async
@@ -277,7 +335,7 @@ export class MarkdownGenerator {
         console.log({ total_tokens: totalTokens });
       }
       return { success: true, tokenCount: llama3Tokenizer.encode(markdown).length };
-    } catch (error) {
+    } catch (error: any) {
       if (this.verbose) {
         console.error('Error writing markdown document:', error);
       }
