@@ -7,7 +7,7 @@
 
 ## Overview
 
-`toak` is a cli tool, nameed for phonetics, that processes git repository files, cleans code, redacts sensitive information, and generates a `prompt.md` with token counts using the Llama 3 tokenizer.
+`toak` is a cli tool, named for phonetics, that processes git repository files, cleans code, redacts sensitive information, and generates a `prompt.md` with token counts using the Llama 3 tokenizer.
 
 ```shell
 $ cd your-git-repo
