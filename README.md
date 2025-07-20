@@ -1,25 +1,21 @@
-# toak
-it's no joke
+# code-tokenizer
+
 
 [![npm version](https://img.shields.io/npm/v/toak)](https://www.npmjs.com/package/toak)
-![Tests](https://github.com/seemueller-io/toak/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/seemueller-io/code-tokenizer/actions/workflows/tests.yml/badge.svg)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
 
 ## Overview
 
-`toak` is an intentionally simple yet powerful tool that processes git repository files, cleans code, redacts sensitive information, and generates markdown documentation with token counts using the Llama 3 tokenizer.
+`toak` is a cli tool, nameed for phonetics, that processes git repository files, cleans code, redacts sensitive information, and generates a `prompt.md` with token counts using the Llama 3 tokenizer.
 
 ```shell
 $ cd your-git-repo
 $ npx toak
 ```
 
-![toak](https://github.com/seemueller-io/toak/blob/471c2a359e342c0103d2074650afe1f1b2b5f71d/toak.jpg?raw=true)
+![toak](https://github.com/seemueller-io/code-tokenizer/blob/471c2a359e342c0103d2074650afe1f1b2b5f71d/toak.jpg?raw=true)
 
-## Philosophy
-1. _Human-first_ technologies for a better future.
-2. If you don't like the name...good.
----
 
 ## Features
 
@@ -29,14 +25,10 @@ $ npx toak
 - Redacts sensitive information (API keys, tokens, JWT, hashes)
 - Counts tokens using llama3-tokenizer-js
 - Supports nested .toak-ignore files
-
-### Token Cleaning
 - Removes single-line and multi-line comments
 - Strips console.log statements
 - Removes import statements
 - Cleans up whitespace and empty lines
-
-### Security Features
 - Redacts API keys and secrets
 - Masks JWT tokens
 - Hides authorization tokens
@@ -45,16 +37,8 @@ $ npx toak
 
 ## Requirements
 
-- Node.js (>=14.0.0)
-- Git repository
-- Bun runtime (for development)
-
-## Installation
-
-```bash
-npm install toak
-```
-
+- npm/bun/yarn/pnpm
+  
 ## Usage
 
 ### CLI
