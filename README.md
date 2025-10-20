@@ -2,7 +2,7 @@
 
 
 [![npm version](https://img.shields.io/npm/v/toak)](https://www.npmjs.com/package/toak)
-![Tests](https://github.com/seemueller-io/code-tokenizer/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/seemueller-io/repo-tokenizer/actions/workflows/tests.yml/badge.svg)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
 
 ## Overview
@@ -14,7 +14,7 @@ $ cd your-git-repo
 $ npx toak
 ```
 
-![toak](https://github.com/seemueller-io/code-tokenizer/blob/471c2a359e342c0103d2074650afe1f1b2b5f71d/toak.jpg?raw=true)
+![toak](/toak.png)
 
 
 ## Features

@@ -3,7 +3,7 @@
   "version": "3.1.3",
   "type": "module",
   "license": "AGPL-3.0-or-later",
-  "repository": "https://github.com/seemueller-io/toak.git",
+  "repository": "https://github.com/geoffsee/repo-tokenizer.git",
   "author": "Geoff Seemueller",
   "description": "Open-source CLI/Library for tokenizing a git repository into a markdown file.",
   "keywords": [
