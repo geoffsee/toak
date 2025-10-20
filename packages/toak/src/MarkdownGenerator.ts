@@ -344,6 +344,102 @@ export class MarkdownGenerator {
   }
 
   /**
+   * Splits repository markdown into tokenizer-sized chunks per file, optionally splitting large files into multiple chunks.
+   * Each chunk includes a markdown header and fenced code block for the file content.
+   * @param {number} maxTokens - Maximum number of tokens per chunk (including header and fences)
+   * @param {{ overlap?: number }} [options] - Optional settings
+   * @returns {Promise<Array<{ fileName: string; meta: Record<string, any>; content: string }>>}
+   */
+  async splitByTokens(maxTokens: number, options?: { overlap?: number }): Promise<Array<{ fileName: string; meta: Record<string, any>; content: string }>> {
+    const overlap = options?.overlap ?? 0;
+    const chunks: Array<{ fileName: string; meta: Record<string, any>; content: string }> = [];
+
+    const trackedFiles = await this.getTrackedFiles();
+
+    for (const file of trackedFiles) {
+      const absolutePath = path.join(this.dir, file);
+      const cleanedContent = await this.readFileContent(absolutePath);
+      if (!cleanedContent.trim()) continue;
+
+      const header = `## ${file}\n~~~\n`;
+      const footer = `\n~~~\n\n`;
+      const headerTokens = llama3Tokenizer.encode(header).length;
+      const footerTokens = llama3Tokenizer.encode(footer).length;
+      const contentLines = cleanedContent.split('\n');
+
+      const totalFileTokens = llama3Tokenizer.encode(header + cleanedContent + footer).length;
+      const contentBudget = Math.max(0, maxTokens - headerTokens - footerTokens);
+
+      // If whole file fits into one chunk
+      if (llama3Tokenizer.encode(cleanedContent).length <= contentBudget) {
+        const body = cleanedContent.trimEnd();
+        const content = `${header}${body}${footer}`;
+        const tokens = llama3Tokenizer.encode(content).length;
+        chunks.push({
+          fileName: file,
+          meta: { chunkIndex: 1, chunkCount: 1, tokens, fileTokens: totalFileTokens, startLine: 1, endLine: contentLines.length },
+          content,
+        });
+        continue;
+      }
+
+      // Otherwise, split by lines into multiple chunks
+      let start = 0;
+      let chunkIndex = 0;
+      const stepBack = Math.max(0, overlap); // overlap in number of lines
+
+      while (start < contentLines.length) {
+        let end = start;
+        let body = '';
+        let tokens = 0;
+
+        while (end < contentLines.length) {
+          const candidateBody = body ? `${body}\n${contentLines[end]}` : contentLines[end];
+          const candidateContent = `${header}${candidateBody}${footer}`;
+          const candidateTokens = llama3Tokenizer.encode(candidateContent).length;
+          if (candidateTokens <= maxTokens) {
+            body = candidateBody;
+            tokens = candidateTokens;
+            end++;
+          } else {
+            break;
+          }
+        }
+
+        // If we couldn't add any line, force add one line to avoid infinite loop
+        if (start === end) {
+          const singleLineBody = contentLines[start];
+          const forcedContent = `${header}${singleLineBody}${footer}`;
+          tokens = llama3Tokenizer.encode(forcedContent).length;
+          chunks.push({
+            fileName: file,
+            meta: { chunkIndex: ++chunkIndex, tokens, fileTokens: totalFileTokens, startLine: start + 1, endLine: start + 1 },
+            content: forcedContent,
+          });
+          start = start + 1; // move by one line
+        } else {
+          const content = `${header}${body}${footer}`;
+          chunks.push({
+            fileName: file,
+            meta: { chunkIndex: ++chunkIndex, tokens, fileTokens: totalFileTokens, startLine: start + 1, endLine: end },
+            content,
+          });
+          // advance with overlap
+          start = Math.max(end - stepBack, start + 1);
+        }
+      }
+
+      // annotate chunkCount for this file
+      const countForFile = chunks.filter(c => c.fileName === file).length;
+      for (const c of chunks) {
+        if (c.fileName === file) c.meta.chunkCount = countForFile;
+      }
+    }
+
+    return chunks;
+  }
+
+  /**
    * Executes a shell command in the specified directory.
    * @param {string} command - Shell command to execute
    * @returns {string} Output of the command
