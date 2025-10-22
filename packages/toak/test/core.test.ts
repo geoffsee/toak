@@ -7,6 +7,7 @@ import path from 'path';
 import * as fs from 'fs/promises';
 import * as child_process from 'child_process';
 import { writeFile } from 'fs/promises';
+import { fakeSecrets, allSecretTests, secretsByCategory } from './fixtures/fake-secrets';
 
 
 describe('TokenCleaner', () => {
@@ -104,6 +105,254 @@ const a = 1;`;
       const code = `SECRET_KEY: 'mysecretkey123'`;
       const expected = `SECRET_KEY: [REDACTED]`;
       expect(customTokenCleaner.redactSecrets(code)).toBe(expected);
+    });
+
+    describe('Comprehensive Secret Detection Tests', () => {
+      describe('API Keys', () => {
+        fakeSecrets.apiKeys.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('JWT Tokens', () => {
+        fakeSecrets.jwtTokens.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Bearer Tokens', () => {
+        fakeSecrets.bearerTokens.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Passwords', () => {
+        fakeSecrets.passwords.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Access Tokens', () => {
+        fakeSecrets.accessTokens.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Private Keys', () => {
+        fakeSecrets.privateKeys.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Cryptographic Hashes', () => {
+        fakeSecrets.hashes.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Base64 Encoded Strings', () => {
+        fakeSecrets.base64Strings.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('.env File Formats (CRITICAL)', () => {
+        fakeSecrets.envFiles.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('JSON Configuration Files', () => {
+        fakeSecrets.jsonConfigs.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('YAML/TOML Configuration Files', () => {
+        fakeSecrets.yamlTomlConfigs.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Cloud Provider Secrets (AWS, GCP, Azure)', () => {
+        fakeSecrets.cloudSecrets.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Database Connection Strings', () => {
+        fakeSecrets.connectionStrings.forEach(({ name, code, expected }) => {
+          it(`should redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Complex Real-World Scenarios', () => {
+        fakeSecrets.complexScenarios.forEach(({ name, code, expected }) => {
+          it(`should handle ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Edge Cases', () => {
+        fakeSecrets.edgeCases.forEach(({ name, code, expected }) => {
+          it(`should handle ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Should Not Redact', () => {
+        fakeSecrets.shouldNotRedact.forEach(({ name, code, expected }) => {
+          it(`should not redact ${name}`, () => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Category-based Testing', () => {
+        it('should redact all authentication-related secrets', () => {
+          secretsByCategory.authentication.forEach(({ code, expected }) => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+
+        it('should redact all cryptographic secrets', () => {
+          secretsByCategory.cryptographic.forEach(({ code, expected }) => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+
+        it('should redact all credential secrets', () => {
+          secretsByCategory.credentials.forEach(({ code, expected }) => {
+            const result = tokenCleaner.redactSecrets(code);
+            expect(result).toBe(expected);
+          });
+        });
+      });
+
+      describe('Integration with cleanAndRedact', () => {
+        it('should remove lines containing only redacted secrets', () => {
+          const code = `const a = 1;
+const api_key = "secret123";
+const b = 2;
+const password = "mypassword";
+const c = 3;`;
+          const result = tokenCleaner.cleanAndRedact(code);
+          // Lines with only redacted content should be removed
+          expect(result).toBe(`const a = 1;
+const b = 2;
+const c = 3;`);
+        });
+
+        it('should handle mixed code with secrets and comments', () => {
+          const code = `// This is a comment
+const apiKey = "sk_test_abc123";
+console.log("Debug info");
+const regularVar = "not a secret";
+const hash = "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3";`;
+          const result = tokenCleaner.cleanAndRedact(code);
+          // Should remove comments, console logs, and lines with redacted secrets
+          expect(result).toBe(`const regularVar = "not a secret";`);
+        });
+
+        it('should preserve code structure when redacting multiple secret types', () => {
+          const code = `function authenticate() {
+  const token = "eyJhbGciOiJIUzI1NiJ9.e30.abc";
+  const apiKey = "api_key_12345";
+  return { token, apiKey };
+}`;
+          const result = tokenCleaner.cleanAndRedact(code);
+          // Function declaration should remain, but secret lines should be removed
+          expect(result).toBe(`function authenticate() {
+  return { token, apiKey };
+}`);
+        });
+      });
+
+      describe('Performance Tests', () => {
+        it('should handle large code blocks efficiently', () => {
+          const largeCode = allSecretTests.map(t => t.code).join('\n');
+          const startTime = performance.now();
+          tokenCleaner.redactSecrets(largeCode);
+          const endTime = performance.now();
+          // Should complete in reasonable time (< 100ms for this dataset)
+          expect(endTime - startTime).toBeLessThan(100);
+        });
+
+        it('should handle repeated secret patterns', () => {
+          const repeatedSecrets = fakeSecrets.apiKeys[0].code.repeat(100);
+          const result = tokenCleaner.redactSecrets(repeatedSecrets);
+          const expectedRepeat = fakeSecrets.apiKeys[0].expected.repeat(100);
+          expect(result).toBe(expectedRepeat);
+        });
+      });
+
+      describe('Validation Tests', () => {
+        it('should redact at least one secret in each test case', () => {
+          allSecretTests.forEach(({ name, code, expected }) => {
+            const result = tokenCleaner.redactSecrets(code);
+            // If expected contains REDACTED, result should too
+            if (expected.includes('[REDACTED')) {
+              expect(result).toContain('[REDACTED');
+            }
+          });
+        });
+
+        it('should not create new secrets when redacting', () => {
+          allSecretTests.forEach(({ code }) => {
+            const result = tokenCleaner.redactSecrets(code);
+            // Result should not contain unredacted patterns that look like real secrets
+            // This is a basic check - in production you'd want more sophisticated validation
+            expect(result).not.toMatch(/api_key\s*=\s*['"][a-zA-Z0-9]{20,}['"]/);
+            expect(result).not.toMatch(/password\s*=\s*['"][a-zA-Z0-9]{8,}['"]/);
+          });
+        });
+      });
     });
   });
 
