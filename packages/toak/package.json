@@ -64,7 +64,7 @@
     "bun-plugin-isolated-decl": "^0.1.10",
     "eslint": "^9.24.0",
     "globals": "^15.15.0",
-    "oxc-transform": "^0.44.0",
+    "oxc-transform": "^0.96.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3"
   },
