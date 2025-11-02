@@ -61,7 +61,7 @@
     "@types/micromatch": "^4.0.9",
     "@types/node": "^22.14.0",
     "bun": "latest",
-    "bun-plugin-isolated-decl": "^0.1.10",
+    "bun-plugin-isolated-decl": "^0.2.8",
     "eslint": "^9.24.0",
     "globals": "^15.15.0",
     "oxc-transform": "^0.44.0",
