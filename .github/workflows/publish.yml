@@ -19,4 +19,4 @@ jobs:
       - name: Publish
         run: cd packages/toak; bun publish
         env:
-          BUN_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
