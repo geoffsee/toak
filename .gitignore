@@ -5,3 +5,5 @@ prompt.md
 todo
 .toak-ignore
 **/*.llamafile
+# releast-it artifact (not used)
+/package-lock.json
