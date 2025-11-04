@@ -59,7 +59,7 @@
     "@eslint/js": "^9.24.0",
     "@types/bun": "latest",
     "@types/micromatch": "^4.0.9",
-    "@types/node": "^22.14.0",
+    "@types/node": "^24.10.0",
     "bun": "latest",
     "bun-plugin-isolated-decl": "^0.1.10",
     "eslint": "^9.24.0",
