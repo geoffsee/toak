@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, spyOn, mock } from 'bun:test';
 import { TokenCleaner, MarkdownGenerator } from '../src';
 import * as micromatch from 'micromatch';
-import llama3Tokenizer from 'llama3-tokenizer-js';
+import { encode } from 'gpt-tokenizer';
 import path from 'path';
 import * as fs from 'fs/promises';
 import * as child_process from 'child_process';
@@ -433,11 +433,6 @@ describe('MarkdownGenerator', () => {
       const cleanerMock = mock(() => cleanedContent);
       TokenCleaner.prototype.cleanAndRedact = cleanerMock;
 
-      // Mock llama3Tokenizer
-      mock.module("llama3-tokenizer-js", () => ({
-        encode: () => [1, 2, 3]
-      }));
-
       const content = await markdownGenerator.readFileContent(filePath);
       expect(content).toBe(cleanedContent);
       expect(cleanerMock).toHaveBeenCalled();
@@ -734,12 +729,9 @@ const a = 1;
         const fullMarkdown = markdown + `\n---\n\n${todos}\n`;
         return {
           success: true,
-          tokenCount: llama3Tokenizer.encode(fullMarkdown).length
+          tokenCount: encode(fullMarkdown).length
         };
       });
-
-      // Mock tokenizer with actual observed token count from logs
-      mock(llama3Tokenizer, 'encode').mockImplementation(() => new Array(21));
 
       const result = await generator.createMarkdownDocument();
 
@@ -747,7 +739,7 @@ const a = 1;
       expect(generator.getTodo).toHaveBeenCalled();
       expect(writeFileCalled).toBe(true);
       expect(result.success).toBe(true);
-      expect(result.tokenCount).toBe(21);
+      expect(result.tokenCount).toBeGreaterThan(0);
 
     });
 

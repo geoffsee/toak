@@ -1,7 +1,7 @@
 import path from 'path';
 import { execSync } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
-import llama3Tokenizer from 'llama3-tokenizer-js';
+import { encode } from 'gpt-tokenizer';
 import { TokenCleaner } from './TokenCleaner.js';
 import * as micromatch from 'micromatch';
 import fileTypeExclusions from './fileTypeExclusions.js';
@@ -178,7 +178,7 @@ export class MarkdownGenerator {
       const content = await readFile(filePath, 'utf-8');
       const cleanedAndRedactedContent = this.tokenCleaner.cleanAndRedact(content);
       if (this.verbose) {
-        const tokenCount = llama3Tokenizer.encode(cleanedAndRedactedContent).length;
+        const tokenCount = encode(cleanedAndRedactedContent).length;
         console.log(`${filePath}: Tokens[${tokenCount}]`);
       }
       return  cleanedAndRedactedContent.trimEnd();
@@ -331,10 +331,10 @@ export class MarkdownGenerator {
       await writeFile(this.outputFilePath, markdown);
       if (this.verbose) {
         console.log(`Markdown document created at ${this.outputFilePath}`);
-        const totalTokens = llama3Tokenizer.encode(markdown).length;
+        const totalTokens = encode(markdown).length;
         console.log({ total_tokens: totalTokens });
       }
-      return { success: true, tokenCount: llama3Tokenizer.encode(markdown).length };
+      return { success: true, tokenCount: encode(markdown).length };
     } catch (error: any) {
       if (this.verbose) {
         console.error('Error writing markdown document:', error);
@@ -363,18 +363,18 @@ export class MarkdownGenerator {
 
       const header = `## ${file}\n~~~\n`;
       const footer = `\n~~~\n\n`;
-      const headerTokens = llama3Tokenizer.encode(header).length;
-      const footerTokens = llama3Tokenizer.encode(footer).length;
+      const headerTokens = encode(header).length;
+      const footerTokens = encode(footer).length;
       const contentLines = cleanedContent.split('\n');
 
-      const totalFileTokens = llama3Tokenizer.encode(header + cleanedContent + footer).length;
+      const totalFileTokens = encode(header + cleanedContent + footer).length;
       const contentBudget = Math.max(0, maxTokens - headerTokens - footerTokens);
 
       // If whole file fits into one chunk
-      if (llama3Tokenizer.encode(cleanedContent).length <= contentBudget) {
+      if (encode(cleanedContent).length <= contentBudget) {
         const body = cleanedContent.trimEnd();
         const content = `${header}${body}${footer}`;
-        const tokens = llama3Tokenizer.encode(content).length;
+        const tokens = encode(content).length;
         chunks.push({
           fileName: file,
           meta: { chunkIndex: 1, chunkCount: 1, tokens, fileTokens: totalFileTokens, startLine: 1, endLine: contentLines.length },
@@ -396,7 +396,7 @@ export class MarkdownGenerator {
         while (end < contentLines.length) {
           const candidateBody = body ? `${body}\n${contentLines[end]}` : contentLines[end];
           const candidateContent = `${header}${candidateBody}${footer}`;
-          const candidateTokens = llama3Tokenizer.encode(candidateContent).length;
+          const candidateTokens = encode(candidateContent).length;
           if (candidateTokens <= maxTokens) {
             body = candidateBody;
             tokens = candidateTokens;
@@ -410,7 +410,7 @@ export class MarkdownGenerator {
         if (start === end) {
           const singleLineBody = contentLines[start];
           const forcedContent = `${header}${singleLineBody}${footer}`;
-          tokens = llama3Tokenizer.encode(forcedContent).length;
+          tokens = encode(forcedContent).length;
           chunks.push({
             fileName: file,
             meta: { chunkIndex: ++chunkIndex, tokens, fileTokens: totalFileTokens, startLine: start + 1, endLine: start + 1 },

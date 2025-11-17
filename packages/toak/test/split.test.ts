@@ -20,11 +20,6 @@ describe('MarkdownGenerator.splitByTokens', () => {
       return '';
     });
 
-    // Mock tokenizer to make most strings small
-    mock.module('llama3-tokenizer-js', () => ({
-      encode: (s: string) => new Array(Math.max(1, Math.min(10, s.length / 100)))
-    }));
-
     const chunks = await gen.splitByTokens(50);
     expect(chunks.length).toBe(1);
     expect(chunks[0].fileName).toBe('src/a.ts');
@@ -52,14 +47,13 @@ describe('MarkdownGenerator.splitByTokens', () => {
       return '';
     });
 
-    // Mock tokenizer: 1 token for any input
-    mock.module('llama3-tokenizer-js', () => ({
-      encode: () => [0],
-    }));
-
-    // With maxTokens = 3, and header+footer each count as 1 token by our mock,
-    // only 1 line can fit per chunk
-    const chunks = await gen.splitByTokens(3);
+    // With gpt-tokenizer:
+    // - Header: 7 tokens
+    // - Footer: 3 tokens
+    // - Each line: 2 tokens
+    // - Two lines: 5 tokens
+    // With maxTokens = 13, contentBudget = 3, so only 1 line fits per chunk
+    const chunks = await gen.splitByTokens(13);
 
     expect(chunks.length).toBe(3);
     expect(chunks[0].fileName).toBe('src/a.ts');
