@@ -8,431 +8,433 @@ use tokio::fs;
 
 /// Default file type exclusions (by extension)
 const DEFAULT_FILE_TYPE_EXCLUSIONS: &[&str] = &[
-    ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp", ".tiff", ".ico",
-    ".ttf", ".woff", ".woff2", ".eot", ".otf",
-    ".lock", ".lockb",
-    ".exe", ".dll", ".so", ".dylib", ".bin", ".dat", ".pyc", ".pyo", ".class", ".jar",
-    ".zip", ".tar", ".gz", ".rar", ".7z",
-    ".mp3", ".mp4", ".avi", ".mov", ".wav",
-    ".db", ".sqlite", ".sqlite3",
+  ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp", ".tiff", ".ico", ".ttf", ".woff",
+  ".woff2", ".eot", ".otf", ".lock", ".lockb", ".exe", ".dll", ".so", ".dylib", ".bin", ".dat",
+  ".pyc", ".pyo", ".class", ".jar", ".zip", ".tar", ".gz", ".rar", ".7z", ".mp3", ".mp4", ".avi",
+  ".mov", ".wav", ".db", ".sqlite", ".sqlite3",
 ];
 
 /// Default file pattern exclusions
 const DEFAULT_FILE_EXCLUSIONS: &[&str] = &[
-    "**/.*rc",
-    "**/.*rc.{js,json,yaml,yml}",
-    "**/*.config.{js,ts}",
-    "**/tsconfig.json",
-    "**/tsconfig*.json",
-    "**/jsconfig.json",
-    "**/jsconfig*.json",
-    "**/package-lock.json",
-    "**/.prettierignore",
-    "**/.dockerignore",
-    "**/.env*",
-    "**/*.vars",
-    "**/secrets.*",
-    "**/.git*",
-    "**/.hg*",
-    "**/.svn*",
-    "**/CVS",
-    "**/.github/",
-    "**/.gitlab-ci.yml",
-    "**/azure-pipelines.yml",
-    "**/jenkins*",
-    "**/node_modules/",
-    "**/target/",
-    "**/__pycache__/",
-    "**/venv/",
-    "**/.venv/",
-    "**/env/",
-    "**/build/",
-    "**/dist/",
-    "**/out/",
-    "**/bin/",
-    "**/obj/",
-    "**/README*",
-    "**/CHANGELOG*",
-    "**/CONTRIBUTING*",
-    "**/LICENSE*",
-    "**/docs/",
-    "**/documentation/",
-    "**/.idea/",
-    "**/.vscode/",
-    "**/.eclipse/",
-    "**/.settings/",
-    "**/.zed/",
-    "**/.cursor/",
-    "**/.project",
-    "**/.classpath",
-    "**/.factorypath",
-    "**/test{s,}/",
-    "**/spec/",
-    "**/fixtures/",
-    "**/testdata/",
-    "**/__tests__/",
-    "**/*.{test,spec}.*",
-    "**/coverage/",
-    "**/jest.config.*",
-    "**/logs/",
-    "**/tmp/",
-    "**/temp/",
-    "**/*.log",
+  "**/.*rc",
+  "**/.*rc.{js,json,yaml,yml}",
+  "**/*.config.{js,ts}",
+  "**/tsconfig.json",
+  "**/tsconfig*.json",
+  "**/jsconfig.json",
+  "**/jsconfig*.json",
+  "**/package-lock.json",
+  "**/.prettierignore",
+  "**/.dockerignore",
+  "**/.env*",
+  "**/*.vars",
+  "**/secrets.*",
+  "**/.git*",
+  "**/.hg*",
+  "**/.svn*",
+  "**/CVS",
+  "**/.github/",
+  "**/.gitlab-ci.yml",
+  "**/azure-pipelines.yml",
+  "**/jenkins*",
+  "**/node_modules/",
+  "**/target/",
+  "**/__pycache__/",
+  "**/venv/",
+  "**/.venv/",
+  "**/env/",
+  "**/build/",
+  "**/dist/",
+  "**/out/",
+  "**/bin/",
+  "**/obj/",
+  "**/README*",
+  "**/CHANGELOG*",
+  "**/CONTRIBUTING*",
+  "**/LICENSE*",
+  "**/docs/",
+  "**/documentation/",
+  "**/.idea/",
+  "**/.vscode/",
+  "**/.eclipse/",
+  "**/.settings/",
+  "**/.zed/",
+  "**/.cursor/",
+  "**/.project",
+  "**/.classpath",
+  "**/.factorypath",
+  "**/test{s,}/",
+  "**/spec/",
+  "**/fixtures/",
+  "**/testdata/",
+  "**/__tests__/",
+  "**/*.{test,spec}.*",
+  "**/coverage/",
+  "**/jest.config.*",
+  "**/logs/",
+  "**/tmp/",
+  "**/temp/",
+  "**/*.log",
 ];
 
 pub struct MarkdownGeneratorOptions {
-    pub dir: PathBuf,
-    pub output_file_path: PathBuf,
-    pub file_type_exclusions: HashSet<String>,
-    pub file_exclusions: Vec<String>,
-    pub verbose: bool,
+  pub dir: PathBuf,
+  pub output_file_path: PathBuf,
+  pub file_type_exclusions: HashSet<String>,
+  pub file_exclusions: Vec<String>,
+  pub verbose: bool,
 }
 
 impl Default for MarkdownGeneratorOptions {
-    fn default() -> Self {
-        Self {
-            dir: PathBuf::from("."),
-            output_file_path: PathBuf::from("prompt.md"),
-            file_type_exclusions: DEFAULT_FILE_TYPE_EXCLUSIONS
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            file_exclusions: DEFAULT_FILE_EXCLUSIONS
-                .iter()
-                .map(|s| s.to_string())
-                .collect(),
-            verbose: true,
-        }
+  fn default() -> Self {
+    Self {
+      dir: PathBuf::from("."),
+      output_file_path: PathBuf::from("prompt.md"),
+      file_type_exclusions: DEFAULT_FILE_TYPE_EXCLUSIONS
+        .iter()
+        .map(|s| s.to_string())
+        .collect(),
+      file_exclusions: DEFAULT_FILE_EXCLUSIONS
+        .iter()
+        .map(|s| s.to_string())
+        .collect(),
+      verbose: true,
     }
+  }
 }
 
 pub struct MarkdownGenerator {
-    options: MarkdownGeneratorOptions,
-    file_exclusions: Vec<String>,
-    initialized: bool,
+  options: MarkdownGeneratorOptions,
+  file_exclusions: Vec<String>,
+  initialized: bool,
 }
 
 impl MarkdownGenerator {
-    pub fn new(options: MarkdownGeneratorOptions) -> Self {
-        Self {
-            file_exclusions: options.file_exclusions.clone(),
-            options,
-            initialized: false,
-        }
+  pub fn new(options: MarkdownGeneratorOptions) -> Self {
+    Self {
+      file_exclusions: options.file_exclusions.clone(),
+      options,
+      initialized: false,
+    }
+  }
+
+  /// Loads nested .toak-ignore files and updates the exclusion patterns
+  async fn load_nested_ignore_files(&mut self) -> Result<()> {
+    if self.options.verbose {
+      println!("Loading ignore patterns...");
     }
 
-    /// Loads nested .toak-ignore files and updates the exclusion patterns
-    async fn load_nested_ignore_files(&mut self) -> Result<()> {
-        if self.options.verbose {
-            println!("Loading ignore patterns...");
-        }
+    // Find all .toak-ignore files
+    let mut ignore_files = Vec::new();
+    self.find_ignore_files(&self.options.dir, &mut ignore_files)?;
 
-        // Find all .toak-ignore files
-        let mut ignore_files = Vec::new();
-        self.find_ignore_files(&self.options.dir, &mut ignore_files)?;
-
-        if self.options.verbose {
-            println!("Found {} ignore files", ignore_files.len());
-        }
-
-        // Process each ignore file
-        for ignore_file in ignore_files {
-            if let Ok(content) = fs::read_to_string(&ignore_file).await {
-                let patterns: Vec<String> = content
-                    .lines()
-                    .map(|line| line.trim())
-                    .filter(|line| !line.is_empty() && !line.starts_with('#'))
-                    .map(|s| s.to_string())
-                    .collect();
-
-                // Get relative patterns based on ignore file location
-                if let Ok(ignore_dir) = ignore_file.parent().unwrap_or_else(|| Path::new(".")).to_path_buf().strip_prefix(&self.options.dir) {
-                    for pattern in patterns {
-                        let relative_pattern = if !pattern.starts_with('/') && !pattern.starts_with("**") {
-                            format!("{}/{}", ignore_dir.display(), pattern)
-                        } else {
-                            pattern
-                        };
-                        self.file_exclusions.push(relative_pattern);
-                    }
-                }
-            }
-        }
-
-        // Remove duplicates
-        self.file_exclusions.sort();
-        self.file_exclusions.dedup();
-
-        if self.options.verbose {
-            println!("Total exclusion patterns: {}", self.file_exclusions.len());
-        }
-
-        Ok(())
+    if self.options.verbose {
+      println!("Found {} ignore files", ignore_files.len());
     }
 
-    fn find_ignore_files(&self, dir: &Path, results: &mut Vec<PathBuf>) -> Result<()> {
-        use walkdir::WalkDir;
+    // Process each ignore file
+    for ignore_file in ignore_files {
+      if let Ok(content) = fs::read_to_string(&ignore_file).await {
+        let patterns: Vec<String> = content
+          .lines()
+          .map(|line| line.trim())
+          .filter(|line| !line.is_empty() && !line.starts_with('#'))
+          .map(|s| s.to_string())
+          .collect();
 
-        for entry in WalkDir::new(dir)
-            .into_iter()
-            .filter_map(|e| e.ok())
+        // Get relative patterns based on ignore file location
+        if let Ok(ignore_dir) = ignore_file
+          .parent()
+          .unwrap_or_else(|| Path::new("."))
+          .to_path_buf()
+          .strip_prefix(&self.options.dir)
         {
-            if entry.file_name() == ".toak-ignore" {
-                results.push(entry.path().to_path_buf());
-            }
+          for pattern in patterns {
+            let relative_pattern = if !pattern.starts_with('/') && !pattern.starts_with("**") {
+              format!("{}/{}", ignore_dir.display(), pattern)
+            } else {
+              pattern
+            };
+            self.file_exclusions.push(relative_pattern);
+          }
         }
-        Ok(())
+      }
     }
 
-    /// Initializes the generator by loading ignore files
-    async fn initialize(&mut self) -> Result<()> {
-        if !self.initialized {
-            self.load_nested_ignore_files().await?;
-            self.initialized = true;
-        }
-        Ok(())
+    // Remove duplicates
+    self.file_exclusions.sort();
+    self.file_exclusions.dedup();
+
+    if self.options.verbose {
+      println!("Total exclusion patterns: {}", self.file_exclusions.len());
     }
 
-    /// Gets tracked files from git, applying exclusions
-    async fn get_tracked_files(&mut self) -> Result<Vec<String>> {
-        self.initialize().await?;
+    Ok(())
+  }
 
-        // Run git ls-files
-        let output = Command::new("git")
-            .arg("ls-files")
-            .current_dir(&self.options.dir)
-            .output()
-            .map_err(|e| anyhow!("Failed to execute git ls-files: {}", e))?;
+  fn find_ignore_files(&self, dir: &Path, results: &mut Vec<PathBuf>) -> Result<()> {
+    use walkdir::WalkDir;
 
-        if !output.status.success() {
-            return Err(anyhow!("git ls-files failed"));
+    for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
+      if entry.file_name() == ".toak-ignore" {
+        results.push(entry.path().to_path_buf());
+      }
+    }
+    Ok(())
+  }
+
+  /// Initializes the generator by loading ignore files
+  async fn initialize(&mut self) -> Result<()> {
+    if !self.initialized {
+      self.load_nested_ignore_files().await?;
+      self.initialized = true;
+    }
+    Ok(())
+  }
+
+  /// Gets tracked files from git, applying exclusions
+  async fn get_tracked_files(&mut self) -> Result<Vec<String>> {
+    self.initialize().await?;
+
+    // Run git ls-files
+    let output = Command::new("git")
+      .arg("ls-files")
+      .current_dir(&self.options.dir)
+      .output()
+      .map_err(|e| anyhow!("Failed to execute git ls-files: {}", e))?;
+
+    if !output.status.success() {
+      return Err(anyhow!("git ls-files failed"));
+    }
+
+    let output_str = String::from_utf8(output.stdout)
+      .map_err(|e| anyhow!("Failed to decode git output: {}", e))?;
+
+    let tracked_files: Vec<String> = output_str
+      .lines()
+      .filter(|line| !line.trim().is_empty())
+      .map(|s| s.to_string())
+      .collect();
+
+    if self.options.verbose {
+      println!("Total tracked files: {}", tracked_files.len());
+    }
+
+    let total_files = tracked_files.len();
+
+    // Filter by exclusions
+    let filtered_files = tracked_files
+      .into_iter()
+      .filter(|file| {
+        let path = Path::new(file);
+        let ext = path
+          .extension()
+          .and_then(|e| e.to_str())
+          .map(|e| format!(".{}", e))
+          .unwrap_or_default();
+
+        // Check if file type is excluded
+        if self.options.file_type_exclusions.contains(&ext) {
+          return false;
         }
 
-        let output_str = String::from_utf8(output.stdout)
-            .map_err(|e| anyhow!("Failed to decode git output: {}", e))?;
+        // Check if file matches exclusion patterns
+        !self.matches_exclusion_patterns(file)
+      })
+      .collect::<Vec<_>>();
 
-        let tracked_files: Vec<String> = output_str
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .map(|s| s.to_string())
-            .collect();
+    if self.options.verbose {
+      println!("Excluded files: {}", total_files - filtered_files.len());
+      println!(
+        "Files to process after exclusions: {}",
+        filtered_files.len()
+      );
+    }
 
+    Ok(filtered_files)
+  }
+
+  /// Checks if a file path matches any exclusion patterns
+  fn matches_exclusion_patterns(&self, file: &str) -> bool {
+    for pattern in &self.file_exclusions {
+      if self.glob_match(pattern, file) {
+        return true;
+      }
+    }
+    false
+  }
+
+  /// Simple glob pattern matching
+  fn glob_match(&self, pattern: &str, path: &str) -> bool {
+    let pattern = pattern
+      .replace("**", ".*")
+      .replace("*", "[^/]*")
+      .replace("?", "[^/]");
+    let pattern = format!("^{}$", pattern);
+
+    if let Ok(re) = Regex::new(&pattern) {
+      re.is_match(path)
+    } else {
+      false
+    }
+  }
+
+  /// Reads and processes file content
+  async fn read_file_content(&self, file_path: &Path) -> Result<String> {
+    let content = fs::read_to_string(file_path).await?;
+    let cleaned = clean_and_redact(&content);
+
+    if self.options.verbose && !cleaned.is_empty() {
+      let token_count = count_tokens(&cleaned);
+      println!("{}: Tokens[{}]", file_path.display(), token_count);
+    }
+
+    Ok(cleaned.trim_end().to_string())
+  }
+
+  /// Generates markdown from all tracked files
+  async fn generate_markdown(&mut self) -> Result<String> {
+    let tracked_files = self.get_tracked_files().await?;
+
+    if self.options.verbose {
+      println!("Generating markdown for {} files", tracked_files.len());
+    }
+
+    let mut markdown = String::from("# Project Files\n\n");
+
+    for file in tracked_files {
+      let absolute_path = self.options.dir.join(&file);
+      match self.read_file_content(&absolute_path).await {
+        Ok(content) => {
+          if !content.trim().is_empty() {
+            markdown.push_str(&format!("## {}\n~~~\n{}\n~~~\n\n", file, content.trim()));
+          } else if self.options.verbose {
+            println!("Skipping {} as it has no content after cleaning.", file);
+          }
+        }
+        Err(e) => {
+          if self.options.verbose {
+            eprintln!("Error reading file {}: {}", file, e);
+          }
+        }
+      }
+    }
+
+    Ok(markdown)
+  }
+
+  /// Reads the todo file, creating it if it doesn't exist
+  async fn get_todo(&self) -> Result<String> {
+    let todo_path = self.options.dir.join("todo");
+
+    if self.options.verbose {
+      println!("Reading todo file");
+    }
+
+    match fs::read_to_string(&todo_path).await {
+      Ok(content) => Ok(content),
+      Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
         if self.options.verbose {
-            println!("Total tracked files: {}", tracked_files.len());
+          println!("File not found, creating a new 'todo' file.");
         }
+        fs::write(&todo_path, "").await?;
+        Ok(String::new())
+      }
+      Err(e) => Err(anyhow!("Error reading todo file: {}", e)),
+    }
+  }
 
-        let total_files = tracked_files.len();
+  /// Gets or creates the root .toak-ignore file
+  async fn get_root_ignore(&self) -> Result<String> {
+    let ignore_path = self.options.dir.join(".toak-ignore");
 
-        // Filter by exclusions
-        let filtered_files = tracked_files
-            .into_iter()
-            .filter(|file| {
-                let path = Path::new(file);
-                let ext = path
-                    .extension()
-                    .and_then(|e| e.to_str())
-                    .map(|e| format!(".{}", e))
-                    .unwrap_or_default();
-
-                // Check if file type is excluded
-                if self.options.file_type_exclusions.contains(&ext) {
-                    return false;
-                }
-
-                // Check if file matches exclusion patterns
-                !self.matches_exclusion_patterns(file)
-            })
-            .collect::<Vec<_>>();
-
+    match fs::read_to_string(&ignore_path).await {
+      Ok(content) => Ok(content),
+      Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
         if self.options.verbose {
-            println!(
-                "Excluded files: {}",
-                total_files - filtered_files.len()
-            );
-            println!(
-                "Files to process after exclusions: {}",
-                filtered_files.len()
-            );
+          println!("File not found, creating a root '.toak-ignore' file.");
         }
-
-        Ok(filtered_files)
+        fs::write(&ignore_path, "todo\nprompt.md").await?;
+        Ok(String::from("todo\nprompt.md"))
+      }
+      Err(e) => Err(anyhow!("Error reading .toak-ignore: {}", e)),
     }
+  }
 
-    /// Checks if a file path matches any exclusion patterns
-    fn matches_exclusion_patterns(&self, file: &str) -> bool {
-        for pattern in &self.file_exclusions {
-            if self.glob_match(pattern, file) {
-                return true;
-            }
-        }
-        false
-    }
+  /// Updates .gitignore to include prompt.md and .toak-ignore
+  async fn update_gitignore(&self) -> Result<()> {
+    let gitignore_path = self.options.dir.join(".gitignore");
 
-    /// Simple glob pattern matching
-    fn glob_match(&self, pattern: &str, path: &str) -> bool {
-        let pattern = pattern.replace("**", ".*").replace("*", "[^/]*").replace("?", "[^/]");
-        let pattern = format!("^{}$", pattern);
-
-        if let Ok(re) = Regex::new(&pattern) {
-            re.is_match(path)
-        } else {
-            false
-        }
-    }
-
-    /// Reads and processes file content
-    async fn read_file_content(&self, file_path: &Path) -> Result<String> {
-        let content = fs::read_to_string(file_path).await?;
-        let cleaned = clean_and_redact(&content);
-
-        if self.options.verbose && !cleaned.is_empty() {
-            let token_count = count_tokens(&cleaned);
-            println!("{}: Tokens[{}]", file_path.display(), token_count);
-        }
-
-        Ok(cleaned.trim_end().to_string())
-    }
-
-    /// Generates markdown from all tracked files
-    async fn generate_markdown(&mut self) -> Result<String> {
-        let tracked_files = self.get_tracked_files().await?;
-
+    let content = match fs::read_to_string(&gitignore_path).await {
+      Ok(c) => c,
+      Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
         if self.options.verbose {
-            println!("Generating markdown for {} files", tracked_files.len());
+          println!("File not found, creating a '.gitignore' file.");
         }
+        String::new()
+      }
+      Err(e) => return Err(anyhow!("Error reading .gitignore: {}", e)),
+    };
 
-        let mut markdown = String::from("# Project Files\n\n");
+    let lines: Vec<&str> = content.lines().map(|l| l.trim()).collect();
+    let needs_prompt_md = !lines.contains(&"prompt.md");
+    let needs_toak_ignore = !lines.contains(&".toak-ignore");
 
-        for file in tracked_files {
-            let absolute_path = self.options.dir.join(&file);
-            match self.read_file_content(&absolute_path).await {
-                Ok(content) => {
-                    if !content.trim().is_empty() {
-                        markdown.push_str(&format!("## {}\n~~~\n{}\n~~~\n\n", file, content.trim()));
-                    } else if self.options.verbose {
-                        println!("Skipping {} as it has no content after cleaning.", file);
-                    }
-                }
-                Err(e) => {
-                    if self.options.verbose {
-                        eprintln!("Error reading file {}: {}", file, e);
-                    }
-                }
-            }
-        }
+    if needs_prompt_md || needs_toak_ignore {
+      if self.options.verbose {
+        println!("Updating .gitignore with prompt.md and .toak-ignore");
+      }
 
-        Ok(markdown)
+      let mut new_content = content;
+      if !new_content.is_empty() && !new_content.ends_with('\n') {
+        new_content.push('\n');
+      }
+
+      if needs_prompt_md {
+        new_content.push_str("prompt.md\n");
+      }
+      if needs_toak_ignore {
+        new_content.push_str(".toak-ignore\n");
+      }
+
+      fs::write(&gitignore_path, new_content).await?;
     }
 
-    /// Reads the todo file, creating it if it doesn't exist
-    async fn get_todo(&self) -> Result<String> {
-        let todo_path = self.options.dir.join("todo");
+    Ok(())
+  }
 
-        if self.options.verbose {
-            println!("Reading todo file");
-        }
+  /// Creates the complete markdown document
+  pub async fn create_markdown_document(&mut self) -> Result<MarkdownResult> {
+    let code_markdown = self.generate_markdown().await?;
+    let todos = self.get_todo().await?;
+    let _ = self.get_root_ignore().await?;
+    self.update_gitignore().await?;
 
-        match fs::read_to_string(&todo_path).await {
-            Ok(content) => Ok(content),
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                if self.options.verbose {
-                    println!("File not found, creating a new 'todo' file.");
-                }
-                fs::write(&todo_path, "").await?;
-                Ok(String::new())
-            }
-            Err(e) => Err(anyhow!("Error reading todo file: {}", e)),
-        }
+    let markdown = format!("{}\n---\n\n{}\n", code_markdown, todos);
+    let token_count = count_tokens(&markdown);
+
+    if self.options.verbose {
+      println!(
+        "Markdown document created at {}",
+        self.options.output_file_path.display()
+      );
+      println!("{{ \"total_tokens\": {} }}", token_count);
     }
 
-    /// Gets or creates the root .toak-ignore file
-    async fn get_root_ignore(&self) -> Result<String> {
-        let ignore_path = self.options.dir.join(".toak-ignore");
+    fs::write(&self.options.output_file_path, &markdown).await?;
 
-        match fs::read_to_string(&ignore_path).await {
-            Ok(content) => Ok(content),
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                if self.options.verbose {
-                    println!("File not found, creating a root '.toak-ignore' file.");
-                }
-                fs::write(&ignore_path, "todo\nprompt.md").await?;
-                Ok(String::from("todo\nprompt.md"))
-            }
-            Err(e) => Err(anyhow!("Error reading .toak-ignore: {}", e)),
-        }
-    }
-
-    /// Updates .gitignore to include prompt.md and .toak-ignore
-    async fn update_gitignore(&self) -> Result<()> {
-        let gitignore_path = self.options.dir.join(".gitignore");
-
-        let content = match fs::read_to_string(&gitignore_path).await {
-            Ok(c) => c,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
-                if self.options.verbose {
-                    println!("File not found, creating a '.gitignore' file.");
-                }
-                String::new()
-            }
-            Err(e) => return Err(anyhow!("Error reading .gitignore: {}", e)),
-        };
-
-        let lines: Vec<&str> = content.lines().map(|l| l.trim()).collect();
-        let needs_prompt_md = !lines.contains(&"prompt.md");
-        let needs_toak_ignore = !lines.contains(&".toak-ignore");
-
-        if needs_prompt_md || needs_toak_ignore {
-            if self.options.verbose {
-                println!("Updating .gitignore with prompt.md and .toak-ignore");
-            }
-
-            let mut new_content = content;
-            if !new_content.is_empty() && !new_content.ends_with('\n') {
-                new_content.push('\n');
-            }
-
-            if needs_prompt_md {
-                new_content.push_str("prompt.md\n");
-            }
-            if needs_toak_ignore {
-                new_content.push_str(".toak-ignore\n");
-            }
-
-            fs::write(&gitignore_path, new_content).await?;
-        }
-
-        Ok(())
-    }
-
-    /// Creates the complete markdown document
-    pub async fn create_markdown_document(&mut self) -> Result<MarkdownResult> {
-        let code_markdown = self.generate_markdown().await?;
-        let todos = self.get_todo().await?;
-        let _ = self.get_root_ignore().await?;
-        self.update_gitignore().await?;
-
-        let markdown = format!("{}\n---\n\n{}\n", code_markdown, todos);
-        let token_count = count_tokens(&markdown);
-
-        if self.options.verbose {
-            println!("Markdown document created at {}", self.options.output_file_path.display());
-            println!("{{ \"total_tokens\": {} }}", token_count);
-        }
-
-        fs::write(&self.options.output_file_path, &markdown).await?;
-
-        Ok(MarkdownResult {
-            success: true,
-            token_count: Some(token_count),
-            error: None,
-        })
-    }
+    Ok(MarkdownResult {
+      success: true,
+      token_count: Some(token_count),
+      error: None,
+    })
+  }
 }
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct MarkdownResult {
-    pub success: bool,
-    pub token_count: Option<usize>,
-    pub error: Option<String>,
+  pub success: bool,
+  pub token_count: Option<usize>,
+  pub error: Option<String>,
 }
