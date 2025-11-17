@@ -9,10 +9,7 @@
     "test": "bun run --filter='*' test",
     "lint": "bun run --filter='*' lint",
     "lint:fix": "bun run --filter='*' lint:fix",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
+    "format": "bunx prettier --write \"**/*.{js,jsx,ts,tsx,json,md,yml,yaml}\"",
     "fix": "bun format && bun run --filter='*' lint:fix"
-  },
-  "devDependencies": {
-    "prettier": "^3.5.3"
   }
 }

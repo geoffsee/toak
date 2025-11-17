@@ -15,12 +15,21 @@ on:
     types: [checks_requested]
 
 jobs:
-  tests:
-    permissions:
-      contents: read
+  version-check:
+    name: Check version consistency
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check versions match
+        run: bash scripts/check-versions.sh
+  ts-tests:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
@@ -29,4 +38,35 @@ jobs:
         run: bun install
 
       - name: Test
-        run: bun test
+        run: bun run test
+
+  rs-tests:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/toak-rs
+
+      - name: Build Rust crate
+        working-directory: packages/toak-rs
+        run: cargo build
+
+      - name: Run Rust tests
+        working-directory: packages/toak-rs
+        run: cargo test
+
+      - name: Check code formatting
+        working-directory: packages/toak-rs
+        run: cargo fmt -- --check
+
+      - name: Lint with Clippy
+        working-directory: packages/toak-rs
+        run: cargo clippy -- -D warnings

@@ -68,5 +68,5 @@ export default [
   '**/logs/',
   '**/tmp/',
   '**/temp/',
-  '**/*.log'
+  '**/*.log',
 ] as const;

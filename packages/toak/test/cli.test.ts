@@ -4,28 +4,47 @@ import { MarkdownGenerator, type MarkdownGeneratorOptions } from '../src/Markdow
 import type { PresetPrompt } from '../src/prompts';
 
 // Function to process CLI arguments similar to cli.ts
-function processArgs(args: string[]): { prompt?: PresetPrompt; } & MarkdownGeneratorOptions {
-  const options: { prompt?: PresetPrompt; } & MarkdownGeneratorOptions = {};
+function processArgs(args: string[]): { prompt?: PresetPrompt } & MarkdownGeneratorOptions {
+  const options: { prompt?: PresetPrompt } & MarkdownGeneratorOptions = {};
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--help') {
-      console.log(`${Object.keys(options).map(item => "--" + item).join(', ')}`);
+      console.log(
+        `${Object.keys(options)
+          .map(item => '--' + item)
+          .join(', ')}`
+      );
       continue;
     }
     if (args[i] === '--prompt') {
-      options["todoPrompt"] = args[i + 1] as PresetPrompt;
+      options['todoPrompt'] = args[i + 1] as PresetPrompt;
       i++;
       continue;
     }
 
     const arg = args[i].replace(/^--/, '');
-    if (['dir', 'outputFilePath', 'verbose', 'todoPrompt', 'fileTypeExclusions', 'fileExclusions', 'customPatterns', 'customSecretPatterns'].includes(arg)) {
+    if (
+      [
+        'dir',
+        'outputFilePath',
+        'verbose',
+        'todoPrompt',
+        'fileTypeExclusions',
+        'fileExclusions',
+        'customPatterns',
+        'customSecretPatterns',
+      ].includes(arg)
+    ) {
       // @ts-ignore - dynamic property access
       options[arg] = args[i + 1];
       i++;
     } else {
       console.log(`Invalid argument specified: ${arg}`);
-      console.log(`Possible arguments: ${Object.keys(options).map(item => "--" + item).join(', ')}`);
+      console.log(
+        `Possible arguments: ${Object.keys(options)
+          .map(item => '--' + item)
+          .join(', ')}`
+      );
     }
   }
 
@@ -42,9 +61,11 @@ describe('CLI', () => {
       const options = processArgs(args);
 
       // Verify options
-      expect(options).toEqual(expect.objectContaining({
-        todoPrompt: 'tcs:fix:errors'
-      }));
+      expect(options).toEqual(
+        expect.objectContaining({
+          todoPrompt: 'tcs:fix:errors',
+        })
+      );
     });
 
     it('should process other valid arguments correctly', () => {
@@ -55,11 +76,13 @@ describe('CLI', () => {
       const options = processArgs(args);
 
       // Verify options
-      expect(options).toEqual(expect.objectContaining({
-        dir: './src',
-        outputFilePath: './custom.md',
-        verbose: 'false'
-      }));
+      expect(options).toEqual(
+        expect.objectContaining({
+          dir: './src',
+          outputFilePath: './custom.md',
+          verbose: 'false',
+        })
+      );
     });
 
     it('should handle invalid arguments', () => {
@@ -73,7 +96,9 @@ describe('CLI', () => {
       processArgs(args);
 
       // Verify error message was logged
-      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid argument specified: invalidArg'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Invalid argument specified: invalidArg')
+      );
 
       // Restore original function
       consoleLogSpy.mockRestore();

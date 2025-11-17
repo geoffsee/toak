@@ -11,29 +11,22 @@ clean up your errors and put them here
 ~~~
 `;
 
-
-
-
-
-
 export const customPrompts: Record<string, string> = {
-  "tcs:fix:errors": taskConditionsStandard_FixErrors,
+  'tcs:fix:errors': taskConditionsStandard_FixErrors,
 };
 
 export type PresetPrompt = keyof typeof customPrompts;
-
 
 export function isPreset(key: string): boolean {
   return key in customPrompts;
 }
 
-
 export const prompts = {
   ...customPrompts,
-  default: customPrompts["tcs:fix:errors"],
+  default: customPrompts['tcs:fix:errors'],
   getPrompt(key?: string) {
     if (!key) return prompts.default;
     if (!isPreset(key)) return prompts.default;
     return customPrompts[key];
-  }
+  },
 };

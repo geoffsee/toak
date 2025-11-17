@@ -1,9 +1,9 @@
 {
   "name": "toak",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "type": "module",
   "license": "AGPL-3.0-or-later",
-  "repository": "https://github.com/geoffsee/repo-tokenizer.git",
+  "repository": "https://github.com/geoffsee/toak.git",
   "author": "Geoff Seemueller",
   "description": "Open-source CLI/Library for tokenizing a git repository into a markdown file.",
   "keywords": [
@@ -48,9 +48,7 @@
     "release": "bunx release-it"
   },
   "dependencies": {
-    "glob": "^11.0.1",
-    "llama3-tokenizer-js": "^1.2.0",
-    "micromatch": "^4.0.8"
+    "gpt-tokenizer": "^3.4.0"
   },
   "peerDependencies": {
     "node": "^20.18.1"
@@ -58,15 +56,12 @@
   "devDependencies": {
     "@eslint/js": "^9.24.0",
     "@types/bun": "latest",
-    "@types/micromatch": "^4.0.9",
     "@types/node": "^22.14.0",
     "bun": "latest",
-    "bun-plugin-isolated-decl": "^0.1.10",
     "eslint": "^9.24.0",
     "globals": "^15.15.0",
-    "oxc-transform": "^0.44.0",
     "prettier": "^3.5.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.3"
   },
   "release-it": {
     "$schema": "https://unpkg.com/release-it/schema/release-it.json",

@@ -1,15 +1,14 @@
 import path from 'path';
 import { execSync } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
-import llama3Tokenizer from 'llama3-tokenizer-js';
+import { encode } from 'gpt-tokenizer';
 import { TokenCleaner } from './TokenCleaner.js';
-import * as micromatch from 'micromatch';
+import * as micromatch from './globMatcher.js';
 import fileTypeExclusions from './fileTypeExclusions.js';
 import fileExclusions from './fileExclusions.js';
 import { readFileSync } from 'node:fs';
-import { glob } from 'glob';
+import { glob } from './simpleGlob.js';
 import { isPreset, type PresetPrompt, prompts } from './prompts.ts';
-
 
 export interface MarkdownGeneratorOptions {
   dir?: string;
@@ -19,7 +18,7 @@ export interface MarkdownGeneratorOptions {
   customPatterns?: Record<string, any>;
   customSecretPatterns?: Record<string, any>;
   verbose?: boolean;
-  todoPrompt?: string
+  todoPrompt?: string;
 }
 
 /**
@@ -44,15 +43,13 @@ export class MarkdownGenerator {
   constructor(options: MarkdownGeneratorOptions = {}) {
     this.dir = options.dir || '.';
     this.outputFilePath = options.outputFilePath || './prompt.md';
-    this.fileTypeExclusions = new Set(
-      options.fileTypeExclusions || fileTypeExclusions,
-    );
+    this.fileTypeExclusions = new Set(options.fileTypeExclusions || fileTypeExclusions);
     this.fileExclusions = options.fileExclusions || [...fileExclusions];
     // @ts-ignore - options.customPatterns signature is valid
     this.tokenCleaner = new TokenCleaner(options.customPatterns, options.customSecretPatterns);
     this.verbose = options.verbose !== undefined ? options.verbose : true;
     this.initialized = false;
-    this.todoPrompt = prompts.getPrompt(options.todoPrompt)
+    this.todoPrompt = prompts.getPrompt(options.todoPrompt);
   }
 
   /**
@@ -87,7 +84,7 @@ export class MarkdownGenerator {
         dot: true,
         absolute: true,
         follow: false,
-        nodir: true
+        nodir: true,
       });
 
       if (this.verbose) {
@@ -150,7 +147,10 @@ export class MarkdownGenerator {
       }
       const filteredFiles = trackedFiles.filter(file => {
         const fileExt = path.extname(file).toLowerCase();
-        return !this.fileTypeExclusions.has(fileExt) && !micromatch.isMatch(file, this.fileExclusions, { dot: true });
+        return (
+          !this.fileTypeExclusions.has(fileExt) &&
+          !micromatch.isMatch(file, this.fileExclusions, { dot: true })
+        );
       });
       if (this.verbose) {
         const excludedCount = trackedFiles.length - filteredFiles.length;
@@ -178,10 +178,10 @@ export class MarkdownGenerator {
       const content = await readFile(filePath, 'utf-8');
       const cleanedAndRedactedContent = this.tokenCleaner.cleanAndRedact(content);
       if (this.verbose) {
-        const tokenCount = llama3Tokenizer.encode(cleanedAndRedactedContent).length;
+        const tokenCount = encode(cleanedAndRedactedContent).length;
         console.log(`${filePath}: Tokens[${tokenCount}]`);
       }
-      return  cleanedAndRedactedContent.trimEnd();
+      return cleanedAndRedactedContent.trimEnd();
     } catch (error) {
       if (this.verbose) {
         console.error(`Error reading file ${filePath}:`, error);
@@ -206,7 +206,8 @@ export class MarkdownGenerator {
     for (const file of trackedFiles) {
       const absolutePath = path.join(this.dir, file);
       const content = await this.readFileContent(absolutePath);
-      if (content.trim()) { // Only include files with content after cleaning
+      if (content.trim()) {
+        // Only include files with content after cleaning
         markdownContent += `## ${file}\n~~~\n${content.trim()}\n~~~\n\n`;
       } else if (this.verbose) {
         console.log(`Skipping ${file} as it has no content after cleaning.`);
@@ -232,7 +233,7 @@ export class MarkdownGenerator {
       if (error.code === 'ENOENT') {
         // File does not exist
         if (this.verbose) {
-          console.log('File not found, creating a new \'todo\' file.');
+          console.log("File not found, creating a new 'todo' file.");
         }
         await writeFile(todoPath, ''); // Create an empty 'todo' file
         return await this.getTodo(); // Await the recursive call
@@ -252,7 +253,7 @@ export class MarkdownGenerator {
       if (error.code === 'ENOENT') {
         // File does not exist
         if (this.verbose) {
-          console.log('File not found, creating a root \'.toak-ignore\' file.');
+          console.log("File not found, creating a root '.toak-ignore' file.");
         }
         await writeFile(rootIgnorePath, 'todo\nprompt.md'); // Create an empty 'todo' file
         return await this.getRootIgnore(); // Await the recursive call
@@ -271,7 +272,7 @@ export class MarkdownGenerator {
         if (error.code === 'ENOENT') {
           // .gitignore doesn't exist, create it
           if (this.verbose) {
-            console.log('File not found, creating a \'.gitignore\' file.');
+            console.log("File not found, creating a '.gitignore' file.");
           }
           content = '';
         } else {
@@ -322,7 +323,11 @@ export class MarkdownGenerator {
    * @returns {Error} [result.error] - Error object if operation failed
    * @throws {Error} When unable to create or write the markdown document
    */
-  async createMarkdownDocument(): Promise<{ success: boolean, tokenCount?: number, error?: Error }> {
+  async createMarkdownDocument(): Promise<{
+    success: boolean;
+    tokenCount?: number;
+    error?: Error;
+  }> {
     try {
       const codeMarkdown = await this.generateMarkdown();
       const todos = await this.getTodo();
@@ -331,10 +336,10 @@ export class MarkdownGenerator {
       await writeFile(this.outputFilePath, markdown);
       if (this.verbose) {
         console.log(`Markdown document created at ${this.outputFilePath}`);
-        const totalTokens = llama3Tokenizer.encode(markdown).length;
+        const totalTokens = encode(markdown).length;
         console.log({ total_tokens: totalTokens });
       }
-      return { success: true, tokenCount: llama3Tokenizer.encode(markdown).length };
+      return { success: true, tokenCount: encode(markdown).length };
     } catch (error: any) {
       if (this.verbose) {
         console.error('Error writing markdown document:', error);
@@ -350,7 +355,10 @@ export class MarkdownGenerator {
    * @param {{ overlap?: number }} [options] - Optional settings
    * @returns {Promise<Array<{ fileName: string; meta: Record<string, any>; content: string }>>}
    */
-  async splitByTokens(maxTokens: number, options?: { overlap?: number }): Promise<Array<{ fileName: string; meta: Record<string, any>; content: string }>> {
+  async splitByTokens(
+    maxTokens: number,
+    options?: { overlap?: number }
+  ): Promise<Array<{ fileName: string; meta: Record<string, any>; content: string }>> {
     const overlap = options?.overlap ?? 0;
     const chunks: Array<{ fileName: string; meta: Record<string, any>; content: string }> = [];
 
@@ -363,21 +371,28 @@ export class MarkdownGenerator {
 
       const header = `## ${file}\n~~~\n`;
       const footer = `\n~~~\n\n`;
-      const headerTokens = llama3Tokenizer.encode(header).length;
-      const footerTokens = llama3Tokenizer.encode(footer).length;
+      const headerTokens = encode(header).length;
+      const footerTokens = encode(footer).length;
       const contentLines = cleanedContent.split('\n');
 
-      const totalFileTokens = llama3Tokenizer.encode(header + cleanedContent + footer).length;
+      const totalFileTokens = encode(header + cleanedContent + footer).length;
       const contentBudget = Math.max(0, maxTokens - headerTokens - footerTokens);
 
       // If whole file fits into one chunk
-      if (llama3Tokenizer.encode(cleanedContent).length <= contentBudget) {
+      if (encode(cleanedContent).length <= contentBudget) {
         const body = cleanedContent.trimEnd();
         const content = `${header}${body}${footer}`;
-        const tokens = llama3Tokenizer.encode(content).length;
+        const tokens = encode(content).length;
         chunks.push({
           fileName: file,
-          meta: { chunkIndex: 1, chunkCount: 1, tokens, fileTokens: totalFileTokens, startLine: 1, endLine: contentLines.length },
+          meta: {
+            chunkIndex: 1,
+            chunkCount: 1,
+            tokens,
+            fileTokens: totalFileTokens,
+            startLine: 1,
+            endLine: contentLines.length,
+          },
           content,
         });
         continue;
@@ -396,7 +411,7 @@ export class MarkdownGenerator {
         while (end < contentLines.length) {
           const candidateBody = body ? `${body}\n${contentLines[end]}` : contentLines[end];
           const candidateContent = `${header}${candidateBody}${footer}`;
-          const candidateTokens = llama3Tokenizer.encode(candidateContent).length;
+          const candidateTokens = encode(candidateContent).length;
           if (candidateTokens <= maxTokens) {
             body = candidateBody;
             tokens = candidateTokens;
@@ -410,10 +425,16 @@ export class MarkdownGenerator {
         if (start === end) {
           const singleLineBody = contentLines[start];
           const forcedContent = `${header}${singleLineBody}${footer}`;
-          tokens = llama3Tokenizer.encode(forcedContent).length;
+          tokens = encode(forcedContent).length;
           chunks.push({
             fileName: file,
-            meta: { chunkIndex: ++chunkIndex, tokens, fileTokens: totalFileTokens, startLine: start + 1, endLine: start + 1 },
+            meta: {
+              chunkIndex: ++chunkIndex,
+              tokens,
+              fileTokens: totalFileTokens,
+              startLine: start + 1,
+              endLine: start + 1,
+            },
             content: forcedContent,
           });
           start = start + 1; // move by one line
@@ -421,7 +442,13 @@ export class MarkdownGenerator {
           const content = `${header}${body}${footer}`;
           chunks.push({
             fileName: file,
-            meta: { chunkIndex: ++chunkIndex, tokens, fileTokens: totalFileTokens, startLine: start + 1, endLine: end },
+            meta: {
+              chunkIndex: ++chunkIndex,
+              tokens,
+              fileTokens: totalFileTokens,
+              startLine: start + 1,
+              endLine: end,
+            },
             content,
           });
           // advance with overlap
