@@ -29,14 +29,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
 
       - name: Install dependencies
         run: bun install
+        working-directory: packages/toak
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: packages/toak
+
+      - name: Build
+        working-directory: packages/toak
+        run: bun run build
 
       - name: Test
-        run: bun test
+        working-directory: packages/toak
+        run: bun test --bail
 
   rust-tests:
     permissions:
