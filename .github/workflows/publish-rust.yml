@@ -1,6 +1,7 @@
 name: Publish Rust Crate
 
 on:
+  workflow_dispatch:
   release:
     types: [created]
 
