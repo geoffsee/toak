@@ -1,7 +1,7 @@
 // test/core.test.ts
 import { describe, it, expect, beforeEach, spyOn, mock } from 'bun:test';
 import { TokenCleaner, MarkdownGenerator } from '../src';
-import * as micromatch from 'micromatch';
+import * as micromatch from '../src/globMatcher';
 import { encode } from 'gpt-tokenizer';
 import path from 'path';
 import * as fs from 'fs/promises';

@@ -3,7 +3,7 @@ import { execSync } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
 import { encode } from 'gpt-tokenizer';
 import { TokenCleaner } from './TokenCleaner.js';
-import * as micromatch from 'micromatch';
+import * as micromatch from './globMatcher.js';
 import fileTypeExclusions from './fileTypeExclusions.js';
 import fileExclusions from './fileExclusions.js';
 import { readFileSync } from 'node:fs';
