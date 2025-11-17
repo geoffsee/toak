@@ -76,7 +76,9 @@ describe('globMatcher', () => {
     it('should match IDE patterns', () => {
       expect(isMatch('.vscode/', '**/.{idea,vscode,eclipse,settings,zed,cursor}/')).toBe(true);
       expect(isMatch('.idea/', '**/.{idea,vscode,eclipse,settings,zed,cursor}/')).toBe(true);
-      expect(isMatch('.cursor/settings.json', '**/.{idea,vscode,eclipse,settings,zed,cursor}/')).toBe(true);
+      expect(
+        isMatch('.cursor/settings.json', '**/.{idea,vscode,eclipse,settings,zed,cursor}/')
+      ).toBe(true);
     });
 
     it('should match test patterns', () => {
@@ -113,24 +115,11 @@ describe('globMatcher', () => {
 
   describe('filter', () => {
     it('should filter array of files', () => {
-      const files = [
-        'index.js',
-        'style.css',
-        'test.spec.js',
-        'README.md',
-        'src/component.js'
-      ];
+      const files = ['index.js', 'style.css', 'test.spec.js', 'README.md', 'src/component.js'];
 
       expect(filter(files, '*.js')).toEqual(['index.js', 'test.spec.js']);
-      expect(filter(files, '**/*.js')).toEqual([
-        'index.js',
-        'test.spec.js',
-        'src/component.js'
-      ]);
-      expect(filter(files, ['*.md', '*.css'])).toEqual([
-        'style.css',
-        'README.md'
-      ]);
+      expect(filter(files, '**/*.js')).toEqual(['index.js', 'test.spec.js', 'src/component.js']);
+      expect(filter(files, ['*.md', '*.css'])).toEqual(['style.css', 'README.md']);
     });
   });
 
@@ -157,7 +146,7 @@ describe('globMatcher', () => {
         '**/.env*',
         '**/*.config.{js,ts}',
         '**/test{s,}/',
-        '**/*.{test,spec}.*'
+        '**/*.{test,spec}.*',
       ];
 
       // Test files that should be excluded

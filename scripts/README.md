@@ -9,11 +9,13 @@ These scripts help manage version consistency across the monorepo's TypeScript a
 Checks that versions match across all packages.
 
 **Usage:**
+
 ```bash
 ./scripts/check-versions.sh
 ```
 
 **Output:**
+
 - Lists versions in:
   - Node.js package (`packages/toak/package.json`)
   - Rust crate (`packages/toak-rs/Cargo.toml`)
@@ -22,6 +24,7 @@ Checks that versions match across all packages.
 - Exits with code 0 if all versions match, 1 if there are mismatches
 
 **Example output (matching versions):**
+
 ```
 Version Check Report
 ====================
@@ -38,19 +41,23 @@ Version Check Report
 Updates package versions across all packages to a specified version. **Only updates package/crate versions, not dependency versions.**
 
 **Usage:**
+
 ```bash
 ./scripts/sync-versions.sh <new-version>
 ```
 
 **Arguments:**
+
 - `<new-version>`: New version in semver format (e.g., `1.2.3`)
 
 **Example:**
+
 ```bash
 ./scripts/sync-versions.sh 4.1.0
 ```
 
 **Files updated:**
+
 - `packages/toak/package.json` - Updates `"version"` field
 - `packages/toak-rs/Cargo.toml` - Updates `version` field in `[package]` section
 - `Cargo.toml` (root workspace) - Updates `version` in `[workspace.package]` section
@@ -58,6 +65,7 @@ Updates package versions across all packages to a specified version. **Only upda
 **Important:** Dependency versions (like `tokio = { version = "1.35" }`) are NOT modified by this script.
 
 **Next steps after running:**
+
 1. Review changes: `git diff`
 2. Commit: `git add . && git commit -m 'Bump version to X.Y.Z'`
 3. Create GitHub release with tag:
@@ -67,6 +75,7 @@ Updates package versions across all packages to a specified version. **Only upda
 ## CI/CD Integration
 
 The version check is automatically run on:
+
 - All pushes to `main` branch
 - All pull requests to `main` branch
 - All merge queue events
@@ -76,6 +85,7 @@ If versions are mismatched, the CI workflow will fail and indicate which version
 ## Version Requirements
 
 Versions must follow [Semantic Versioning](https://semver.org/):
+
 - Format: `MAJOR.MINOR.PATCH`
 - Example: `4.0.4`, `1.2.3`
 
@@ -92,15 +102,19 @@ This ensures that `toak@4.0.4` on npm corresponds to `toak-rs v4.0.4` on crates.
 ## Troubleshooting
 
 ### Scripts not executable
+
 ```bash
 chmod +x scripts/*.sh
 ```
 
 ### Version format not recognized
+
 Ensure version follows `X.Y.Z` format (three numeric parts separated by dots).
 
 ### Scripts fail to find files
+
 Ensure you're running scripts from the repository root:
+
 ```bash
 # Good
 ./scripts/check-versions.sh

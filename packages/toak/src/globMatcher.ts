@@ -260,5 +260,5 @@ export function matcher(
 export default {
   isMatch,
   filter,
-  matcher
+  matcher,
 };

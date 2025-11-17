@@ -19,7 +19,7 @@ export async function glob(pattern: string, options: GlobOptions = {}): Promise<
     dot = false,
     absolute = false,
     follow = true,
-    nodir = false
+    nodir = false,
   } = options;
 
   const results: string[] = [];
@@ -87,10 +87,7 @@ export async function glob(pattern: string, options: GlobOptions = {}): Promise<
     }
 
     // Convert glob pattern to regex
-    const regexPattern = pattern
-      .replace(/\./g, '\\.')
-      .replace(/\*/g, '.*')
-      .replace(/\?/g, '.');
+    const regexPattern = pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.');
 
     const regex = new RegExp(`^${regexPattern}$`);
     return regex.test(fileName);

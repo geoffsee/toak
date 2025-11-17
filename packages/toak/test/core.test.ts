@@ -9,7 +9,6 @@ import * as child_process from 'child_process';
 import { writeFile } from 'fs/promises';
 import { fakeSecrets, allSecretTests, secretsByCategory } from './fixtures/fake-secrets';
 
-
 describe('TokenCleaner', () => {
   let tokenCleaner: TokenCleaner;
 
@@ -60,9 +59,7 @@ const b = 2;`;
     });
 
     it('should apply custom patterns', () => {
-      const customPatterns = [
-        { regex: /DEBUG\s*=\s*true/g, replacement: 'DEBUG = false' },
-      ];
+      const customPatterns = [{ regex: /DEBUG\s*=\s*true/g, replacement: 'DEBUG = false' }];
       const customTokenCleaner = new TokenCleaner(customPatterns);
       const code = `const DEBUG = true;
 const a = 1;`;
@@ -381,20 +378,20 @@ describe('MarkdownGenerator', () => {
 
   beforeEach(() => {
     markdownGenerator = new MarkdownGenerator({ verbose: false });
-  })
+  });
 
   describe('getTrackedFiles', () => {
-    it("should return filtered tracked files", async () => {
-      const mockFiles = ["src/index.ts", "src/MarkdownGenerator.ts", "src/TokenCleaner.ts"];
+    it('should return filtered tracked files', async () => {
+      const mockFiles = ['src/index.ts', 'src/MarkdownGenerator.ts', 'src/TokenCleaner.ts'];
 
       // Use Bun's mock instead of Jest's spyOn
-      mock.module("child_process", () => ({
-        execSync: () => mockFiles.join('\n')
+      mock.module('child_process', () => ({
+        execSync: () => mockFiles.join('\n'),
       }));
 
       // Mock micromatch using Bun's mock
-      mock.module("micromatch", () => ({
-        isMatch: () => false
+      mock.module('micromatch', () => ({
+        isMatch: () => false,
       }));
 
       const trackedFiles = await markdownGenerator.getTrackedFiles();
@@ -417,16 +414,15 @@ describe('MarkdownGenerator', () => {
   });
 
   describe('readFileContent', () => {
-    it("should read and clean file content", async () => {
-      const filePath = "test.ts";
+    it('should read and clean file content', async () => {
+      const filePath = 'test.ts';
       const rawContent = "// comment\nconst x = 1;\nconsole.log('test');";
-      const cleanedContent = "const x = 1;";
+      const cleanedContent = 'const x = 1;';
 
       // Mock fs/promises readFile
-      mock.module("fs/promises", () => ({
+      mock.module('fs/promises', () => ({
         readFile: async () => rawContent,
-        writeFile: async () => {
-        }
+        writeFile: async () => {},
       }));
 
       // Mock TokenCleaner
@@ -462,14 +458,16 @@ describe('MarkdownGenerator', () => {
       ]);
 
       // Spy on readFileContent
-      const readFileContentSpy = spyOn(markdownGenerator, 'readFileContent').mockImplementation(async (filePath: string) => {
-        if (filePath === path.join('.', 'src/index.ts')) {
-          return `const a = 1;`;
-        } else if (filePath === path.join('.', 'src/MarkdownGenerator.ts')) {
-          return `class MarkdownGenerator {}`;
+      const readFileContentSpy = spyOn(markdownGenerator, 'readFileContent').mockImplementation(
+        async (filePath: string) => {
+          if (filePath === path.join('.', 'src/index.ts')) {
+            return `const a = 1;`;
+          } else if (filePath === path.join('.', 'src/MarkdownGenerator.ts')) {
+            return `class MarkdownGenerator {}`;
+          }
+          return '';
         }
-        return '';
-      });
+      );
 
       const expectedMarkdown = `# Project Files
 
@@ -516,14 +514,16 @@ class MarkdownGenerator {}
       ]);
 
       // Spy on readFileContent
-      const readFileContentSpy = spyOn(markdownGenerator, 'readFileContent').mockImplementation(async (filePath: string) => {
-        if (filePath === path.join('.', 'src/index.ts')) {
-          return `const a = 1;`;
-        } else if (filePath === path.join('.', 'src/empty.ts')) {
-          return `   `;
+      const readFileContentSpy = spyOn(markdownGenerator, 'readFileContent').mockImplementation(
+        async (filePath: string) => {
+          if (filePath === path.join('.', 'src/index.ts')) {
+            return `const a = 1;`;
+          } else if (filePath === path.join('.', 'src/empty.ts')) {
+            return `   `;
+          }
+          return '';
         }
-        return '';
-      });
+      );
 
       const expectedMarkdown = `# Project Files
 
@@ -598,7 +598,6 @@ const a = 1;
   });
 
   describe('getRootIgnore', () => {
-
     it('should create root ignore file if it does not exist', async () => {
       const rootIgnorePath = path.join('.', '.toak-ignore');
 
@@ -643,7 +642,7 @@ const a = 1;
 
       // Verify writeFile was called with correct content
       expect(writeFileSpy).toHaveBeenCalledWith(
-        gitignorePath, 
+        gitignorePath,
         'node_modules\ndist\nprompt.md\n.toak-ignore\n'
       );
 
@@ -656,8 +655,9 @@ const a = 1;
       const gitignorePath = path.join('.', '.gitignore');
 
       // Mock readFile to simulate .gitignore already has the entries
-      const readFileSpy = spyOn(fs, 'readFile')
-        .mockResolvedValue('node_modules\ndist\nprompt.md\n.toak-ignore\n');
+      const readFileSpy = spyOn(fs, 'readFile').mockResolvedValue(
+        'node_modules\ndist\nprompt.md\n.toak-ignore\n'
+      );
 
       // Spy on fs.writeFile
       const writeFileSpy = spyOn(fs, 'writeFile').mockResolvedValue(undefined);
@@ -696,10 +696,7 @@ const a = 1;
       expect(readFileSpy).toHaveBeenCalledWith(gitignorePath, 'utf-8');
 
       // Verify writeFile was called with correct content
-      expect(writeFileSpy).toHaveBeenCalledWith(
-        gitignorePath, 
-        'prompt.md\n.toak-ignore\n'
-      );
+      expect(writeFileSpy).toHaveBeenCalledWith(gitignorePath, 'prompt.md\n.toak-ignore\n');
 
       // Restore the original implementations
       readFileSpy.mockRestore();
@@ -729,7 +726,7 @@ const a = 1;
         const fullMarkdown = markdown + `\n---\n\n${todos}\n`;
         return {
           success: true,
-          tokenCount: encode(fullMarkdown).length
+          tokenCount: encode(fullMarkdown).length,
         };
       });
 
@@ -740,12 +737,13 @@ const a = 1;
       expect(writeFileCalled).toBe(true);
       expect(result.success).toBe(true);
       expect(result.tokenCount).toBeGreaterThan(0);
-
     });
 
     it('should handle errors during markdown creation', async () => {
       // Spy on generateMarkdown to reject
-      const generateMarkdownSpy = spyOn(markdownGenerator, 'generateMarkdown').mockRejectedValue(new Error('Generation failed'));
+      const generateMarkdownSpy = spyOn(markdownGenerator, 'generateMarkdown').mockRejectedValue(
+        new Error('Generation failed')
+      );
 
       const result = await markdownGenerator.createMarkdownDocument();
       expect(result.success).toBe(false);

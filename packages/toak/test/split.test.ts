@@ -2,23 +2,22 @@ import { describe, it, expect, spyOn, mock } from 'bun:test';
 import { MarkdownGenerator } from '../src';
 import path from 'path';
 
-
 describe('MarkdownGenerator.splitByTokens', () => {
   it('returns one chunk when file fits within token budget', async () => {
     const gen = new MarkdownGenerator({ verbose: false });
 
     // Mock tracked files
-    const getTrackedFilesSpy = spyOn(gen, 'getTrackedFiles').mockResolvedValue([
-      'src/a.ts',
-    ]);
+    const getTrackedFilesSpy = spyOn(gen, 'getTrackedFiles').mockResolvedValue(['src/a.ts']);
 
     // Mock readFileContent
-    const readFileContentSpy = spyOn(gen, 'readFileContent').mockImplementation(async (filePath: string) => {
-      if (filePath === path.join('.', 'src/a.ts')) {
-        return `const a = 1;\nconst b = 2;`;
+    const readFileContentSpy = spyOn(gen, 'readFileContent').mockImplementation(
+      async (filePath: string) => {
+        if (filePath === path.join('.', 'src/a.ts')) {
+          return `const a = 1;\nconst b = 2;`;
+        }
+        return '';
       }
-      return '';
-    });
+    );
 
     const chunks = await gen.splitByTokens(50);
     expect(chunks.length).toBe(1);
@@ -35,17 +34,17 @@ describe('MarkdownGenerator.splitByTokens', () => {
     const gen = new MarkdownGenerator({ verbose: false });
 
     // Mock tracked files
-    const getTrackedFilesSpy = spyOn(gen, 'getTrackedFiles').mockResolvedValue([
-      'src/a.ts',
-    ]);
+    const getTrackedFilesSpy = spyOn(gen, 'getTrackedFiles').mockResolvedValue(['src/a.ts']);
 
     // Mock readFileContent with 3 lines
-    const readFileContentSpy = spyOn(gen, 'readFileContent').mockImplementation(async (filePath: string) => {
-      if (filePath === path.join('.', 'src/a.ts')) {
-        return `line1\nline2\nline3`;
+    const readFileContentSpy = spyOn(gen, 'readFileContent').mockImplementation(
+      async (filePath: string) => {
+        if (filePath === path.join('.', 'src/a.ts')) {
+          return `line1\nline2\nline3`;
+        }
+        return '';
       }
-      return '';
-    });
+    );
 
     // With gpt-tokenizer:
     // - Header: 7 tokens

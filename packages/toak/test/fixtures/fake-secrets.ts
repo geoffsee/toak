@@ -470,10 +470,18 @@ export const allSecretTests = [
 
 // Export by category for targeted testing
 export const secretsByCategory = {
-  authentication: [...fakeSecrets.apiKeys, ...fakeSecrets.bearerTokens, ...fakeSecrets.accessTokens],
+  authentication: [
+    ...fakeSecrets.apiKeys,
+    ...fakeSecrets.bearerTokens,
+    ...fakeSecrets.accessTokens,
+  ],
   cryptographic: [...fakeSecrets.hashes, ...fakeSecrets.base64Strings, ...fakeSecrets.jwtTokens],
   credentials: [...fakeSecrets.passwords, ...fakeSecrets.privateKeys],
-  configFiles: [...fakeSecrets.envFiles, ...fakeSecrets.jsonConfigs, ...fakeSecrets.yamlTomlConfigs],
+  configFiles: [
+    ...fakeSecrets.envFiles,
+    ...fakeSecrets.jsonConfigs,
+    ...fakeSecrets.yamlTomlConfigs,
+  ],
   cloudProvider: fakeSecrets.cloudSecrets,
   databases: fakeSecrets.connectionStrings,
   complex: fakeSecrets.complexScenarios,

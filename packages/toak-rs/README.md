@@ -83,6 +83,7 @@ The tool recursively loads `.toak-ignore` files from any directory level.
 The tool automatically excludes:
 
 **File Types:**
+
 - Images: `.jpg`, `.png`, `.gif`, `.svg`, `.webp`, etc.
 - Fonts: `.ttf`, `.woff`, `.eot`, `.otf`
 - Binaries: `.exe`, `.dll`, `.so`, `.dylib`
@@ -91,6 +92,7 @@ The tool automatically excludes:
 - Databases: `.db`, `.sqlite`, `.sqlite3`
 
 **Patterns:**
+
 - Configuration files (`.env*`, `tsconfig.json`, `package-lock.json`)
 - Version control (`.git*`, `.hg*`, `.svn*`)
 - Build outputs (`build/`, `dist/`, `out/`)

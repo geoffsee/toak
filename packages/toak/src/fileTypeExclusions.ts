@@ -56,7 +56,7 @@ const filetypeExclusions = [
   // Database
   '.db',
   '.sqlite',
-  '.sqlite3'
+  '.sqlite3',
 ] as const;
 
 export default filetypeExclusions;

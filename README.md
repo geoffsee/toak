@@ -1,6 +1,6 @@
 # toak
-### *Tokenization*
 
+### _Tokenization_
 
 [![npm version](https://img.shields.io/npm/v/toak)](https://www.npmjs.com/package/toak)
 [![Crates.io](https://img.shields.io/crates/v/toak-rs.svg)](https://crates.io/crates/toak-rs)
@@ -16,12 +16,14 @@
 Choose your preferred implementation:
 
 ### Node.js/npm (TypeScript)
+
 ```bash
 cd /path/to/your-git-repo
 npx toak
 ```
 
 ### Rust (faster performance)
+
 ```bash
 # Install from crates.io
 cargo install toak-rs
@@ -32,9 +34,11 @@ toak
 ```
 
 ![toak](/toak.png)
+
 ## Features
 
 ### Data Processing
+
 - Reads tracked files from git repository
 - Removes comments, imports, and unnecessary whitespace
 - Redacts sensitive information (API keys, tokens, JWT, hashes)
@@ -52,23 +56,25 @@ toak
 
 ## Implementation Comparison
 
-| Feature | TypeScript (npm) | Rust (crates.io) |
-|---------|------------------|------------------|
-| Installation | `npm` required | No runtime required |
-| Performance | Moderate | ⚡ Blazing fast |
-| Memory Usage | Higher | Low |
-| Binary Size | Large | Compact |
-| Async I/O | Yes (Node.js) | Yes (Tokio) |
-| Feature Parity | Reference implementation | Full |
-| Maintenance | Active | Active |
+| Feature        | TypeScript (npm)         | Rust (crates.io)    |
+| -------------- | ------------------------ | ------------------- |
+| Installation   | `npm` required           | No runtime required |
+| Performance    | Moderate                 | ⚡ Blazing fast     |
+| Memory Usage   | Higher                   | Low                 |
+| Binary Size    | Large                    | Compact             |
+| Async I/O      | Yes (Node.js)            | Yes (Tokio)         |
+| Feature Parity | Reference implementation | Full                |
+| Maintenance    | Active                   | Active              |
 
 ### Why Choose Rust?
+
 - **Faster Execution**: Compiled binary runs 2-10x faster than Node.js
 - **Smaller Package**: Single binary vs. node_modules directory
 - **No Runtime**: Works on any system without Node.js installed
 - **Production Ready**: Suitable for CI/CD pipelines and servers
 
 ### Why Choose TypeScript?
+
 - **Easy Installation**: `npx` works out of the box
 - **Customization**: Access to JavaScript library ecosystem
 - **Programmatic API**: Use as a library in Node.js projects
@@ -76,16 +82,19 @@ toak
 ## Requirements
 
 ### For TypeScript (npm) version
+
 - npm/bun/yarn/pnpm
 - Node.js 20.18.1+
 
 ### For Rust version
+
 - Cargo (Rust package manager)
 - Git (for repository processing)
-  
+
 ## Usage
 
 ### CLI
+
 ```bash
 npx toak
 ```
@@ -93,12 +102,12 @@ npx toak
 ### Programmatic Usage
 
 ```typescript
-import { MarkdownGenerator } from 'toak';
+import { MarkdownGenerator } from "toak";
 
 const generator = new MarkdownGenerator({
-  dir: './project',
-  outputFilePath: './output.md',
-  verbose: true
+  dir: "./project",
+  outputFilePath: "./output.md",
+  verbose: true,
 });
 
 const result = await generator.createMarkdownDocument();
@@ -110,13 +119,13 @@ const result = await generator.createMarkdownDocument();
 
 ```typescript
 interface MarkdownGeneratorOptions {
-  dir?: string;                    // Project directory (default: '.')
-  outputFilePath?: string;         // Output file path (default: './prompt.md')
-  fileTypeExclusions?: Set<string>;// File types to exclude
-  fileExclusions?: string[];      // File patterns to exclude
-  customPatterns?: Record<string, any>;      // Custom cleaning patterns
-  customSecretPatterns?: Record<string, any>;// Custom redaction patterns
-  verbose?: boolean;              // Enable verbose logging (default: true)
+  dir?: string; // Project directory (default: '.')
+  outputFilePath?: string; // Output file path (default: './prompt.md')
+  fileTypeExclusions?: Set<string>; // File types to exclude
+  fileExclusions?: string[]; // File patterns to exclude
+  customPatterns?: Record<string, any>; // Custom cleaning patterns
+  customSecretPatterns?: Record<string, any>; // Custom redaction patterns
+  verbose?: boolean; // Enable verbose logging (default: true)
 }
 ```
 
@@ -125,6 +134,7 @@ interface MarkdownGeneratorOptions {
 Create a `.toak-ignore` file in any directory to specify exclusions. The tool supports nested ignore files that affect their directory and subdirectories.
 
 Example `.toak-ignore`:
+
 ```plaintext
 # Ignore specific files
 secrets.json
@@ -144,6 +154,7 @@ temp/
 The tool automatically excludes common file types and patterns:
 
 File Types:
+
 - Images: .jpg, .jpeg, .png, .gif, .bmp, .svg, .webp, etc.
 - Fonts: .ttf, .woff, .woff2, .eot, .otf
 - Binaries: .exe, .dll, .so, .dylib, .bin
@@ -153,14 +164,15 @@ File Types:
 - Config: .lock
 
 File Patterns:
-- Configuration files: .*rc, tsconfig.json, package-lock.json
-- Version control: .git*, .hg*, .svn*
-- Environment files: .env*
+
+- Configuration files: .\*rc, tsconfig.json, package-lock.json
+- Version control: .git*, .hg*, .svn\*
+- Environment files: .env\*
 - Build outputs: build/, dist/, out/
 - Dependencies: node_modules/
 - Documentation: docs/, README*, CHANGELOG*
 - IDE settings: .idea/, .vscode/
-- Test files: test/, spec/, __tests__/
+- Test files: test/, spec/, **tests**/
 
 ## Development
 
@@ -177,6 +189,7 @@ bun install
 ```
 
 **Scripts:**
+
 ```bash
 # Build the project
 bun run build
@@ -204,6 +217,7 @@ bun run deploy:dev
 ```
 
 **Project Structure:**
+
 ```
 packages/toak/src/
 ├── index.ts              # Main exports
@@ -223,6 +237,7 @@ cd packages/toak-rs
 ```
 
 **Commands:**
+
 ```bash
 # Build
 cargo build --release
@@ -247,6 +262,7 @@ cargo publish --token <CRATES_IO_TOKEN>
 ```
 
 **Project Structure:**
+
 ```
 packages/toak-rs/src/
 ├── main.rs               # CLI entry point
@@ -260,6 +276,7 @@ packages/toak-rs/src/
 See [RELEASE_GUIDE.md](packages/toak-rs/RELEASE_GUIDE.md) for detailed instructions on publishing to crates.io.
 
 Quick release:
+
 1. Update version in `packages/toak-rs/Cargo.toml`
 2. Create a GitHub release with tag `toak-rs-vX.Y.Z`
 3. Automated workflow publishes to crates.io
@@ -275,6 +292,7 @@ Contributions are welcome for both TypeScript and Rust implementations!
 5. Open a Pull Request
 
 ### Guidelines for TypeScript
+
 - Write TypeScript code following the project's style
 - Include appropriate error handling
 - Add documentation for new features
@@ -282,6 +300,7 @@ Contributions are welcome for both TypeScript and Rust implementations!
 - Update the README for significant changes
 
 ### Guidelines for Rust
+
 - Follow Rust naming conventions and idioms
 - Ensure code passes `cargo clippy` without warnings
 - Run `cargo fmt` before committing
@@ -290,6 +309,7 @@ Contributions are welcome for both TypeScript and Rust implementations!
 - Ensure all tests pass: `cargo test`
 
 ### Code Quality
+
 - Both implementations are tested on every push/PR
 - Automated workflow checks formatting and linting
 - Versions must be synchronized (see Version Management section)
@@ -300,17 +320,18 @@ Contributions are welcome for both TypeScript and Rust implementations!
 Since this monorepo has both Node.js and Rust implementations, versions must stay synchronized.
 
 **Check versions:**
+
 ```bash
 ./scripts/check-versions.sh
 ```
 
 **Update versions:**
+
 ```bash
 ./scripts/sync-versions.sh 1.0.0
 ```
 
 See [scripts/README.md](scripts/README.md) for detailed documentation.
-
 
 ## Note
 
@@ -319,6 +340,6 @@ This tool requires a git repository to function properly as it uses `git ls-file
 ## License
 
 ### GNU AFFERO GENERAL PUBLIC LICENSE
+
 Version 3, 19 November 2007
 © 2024 Geoff Seemueller
-

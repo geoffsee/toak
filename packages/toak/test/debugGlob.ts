@@ -2,10 +2,12 @@
 import globMatcher from '../src/globMatcher';
 
 // Access the internal function for debugging
-const globToRegex = (globMatcher as any).globToRegex || (() => {
-  // Fallback if we can't access internal
-  return { source: 'N/A', flags: '' };
-});
+const globToRegex =
+  (globMatcher as any).globToRegex ||
+  (() => {
+    // Fallback if we can't access internal
+    return { source: 'N/A', flags: '' };
+  });
 
 // Debug function to show what's happening
 function testPattern(file: string, pattern: string, expected: boolean) {
@@ -26,7 +28,7 @@ function testPattern(file: string, pattern: string, expected: boolean) {
 console.log('=== Testing Basic Wildcards ===');
 testPattern('test.js', '*.js', true);
 testPattern('test.ts', '*.js', false);
-testPattern('src/test.js', '*.js', false);  // Should NOT match - *.js is basename only
+testPattern('src/test.js', '*.js', false); // Should NOT match - *.js is basename only
 testPattern('test.config.js', '*.config.js', true);
 
 console.log('\n=== Testing ** Patterns ===');
