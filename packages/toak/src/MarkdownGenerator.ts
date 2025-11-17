@@ -7,7 +7,7 @@ import * as micromatch from './globMatcher.js';
 import fileTypeExclusions from './fileTypeExclusions.js';
 import fileExclusions from './fileExclusions.js';
 import { readFileSync } from 'node:fs';
-import { glob } from 'glob';
+import { glob } from './simpleGlob.js';
 import { isPreset, type PresetPrompt, prompts } from './prompts.ts';
 
 

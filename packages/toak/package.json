@@ -48,7 +48,6 @@
     "release": "bunx release-it"
   },
   "dependencies": {
-    "glob": "^11.0.1",
     "gpt-tokenizer": "^3.4.0"
   },
   "peerDependencies": {
