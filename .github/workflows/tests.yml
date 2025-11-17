@@ -22,31 +22,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Check versions match
         run: bash scripts/check-versions.sh
-  js-tests:
+  ts-tests:
     permissions:
       contents: read
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
         run: bun install
-        working-directory: packages/toak
-
-      - name: Install dependencies
-        run: bun install
-        working-directory: packages/toak
-
-      - name: Build
-        working-directory: packages/toak
-        run: bun run build
 
       - name: Test
-        working-directory: packages/toak
-        run: bun test --bail
+        run: bun run test
 
-  rust-tests:
+  rs-tests:
     permissions:
       contents: read
     runs-on: ubuntu-latest

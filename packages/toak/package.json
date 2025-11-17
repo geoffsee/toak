@@ -47,24 +47,20 @@
     "fix": "bun format && bun lint:fix",
     "release": "bunx release-it"
   },
-  "dependencies": {
-    "glob": "^11.0.1",
-    "llama3-tokenizer-js": "^1.2.0",
-    "micromatch": "^4.0.8"
-  },
   "peerDependencies": {
     "node": "^20.18.1"
   },
   "devDependencies": {
+    "glob": "^11.0.1",
+    "llama3-tokenizer-js": "^1.2.0",
+    "micromatch": "^4.0.8",
     "@eslint/js": "^9.24.0",
     "@types/bun": "latest",
     "@types/micromatch": "^4.0.9",
     "@types/node": "^22.14.0",
     "bun": "latest",
-    "bun-plugin-isolated-decl": "^0.2.8",
     "eslint": "^9.24.0",
     "globals": "^15.15.0",
-    "oxc-transform": "^0.98.0",
     "prettier": "^3.5.3",
     "typescript": "^5.9.3"
   },

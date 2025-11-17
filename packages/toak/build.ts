@@ -1,5 +1,3 @@
-import isolatedDecl from 'bun-plugin-isolated-decl';
-
 // handles building the library
 await Bun.build({
   entrypoints: [
@@ -13,10 +11,5 @@ await Bun.build({
   outdir: './dist',
   minify: true,
   target: 'node',
-  splitting: true,
-  plugins: [
-    isolatedDecl({
-      forceGenerate: true,  // Generate declaration files even if there are errors
-    })
-  ],
+  splitting: true
 });
