@@ -1,0 +1,28 @@
+name: Publish Rust Crate
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish-crates-io:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Verify crate builds
+        run: cargo build --release --package toak-rs
+
+      - name: Run tests
+        run: cargo test --release --package toak-rs
+
+      - name: Publish to crates.io
+        run: cargo publish --package toak-rs --token ${CARGO_REGISTRY_TOKEN}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

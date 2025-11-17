@@ -1,0 +1,23 @@
+[package]
+name = "toak-rs"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+description = "A fast CLI tool for tokenizing git repositories into markdown files"
+readme = "README.md"
+keywords = ["tokenizer", "git", "cli", "markdown", "llm"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "toak"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1.35", features = ["full"] }
+regex = "1.10"
+clap = { version = "4.4", features = ["derive"] }
+walkdir = "2.4"
+anyhow = "1.0"
+thiserror = "1.0"

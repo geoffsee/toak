@@ -1,0 +1,10 @@
+[workspace]
+members = ["packages/toak-rs"]
+resolver = "2"
+
+[workspace.package]
+version = "4.0.4"
+authors = ["Geoff Seemueller"]
+edition = "2021"
+repository = "https://github.com/geoffsee/repo-tokenizer"
+license = "AGPL-3.0-or-later"
