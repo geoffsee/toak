@@ -354,14 +354,14 @@ impl MarkdownGenerator {
         if self.options.verbose {
           println!("File not found, creating a root '.toak-ignore' file.");
         }
-        fs::write(&ignore_path, "todo\nprompt.md").await?;
-        Ok(String::from("todo\nprompt.md"))
+        fs::write(&ignore_path, "todo\nprompt.md\nembeddings.json").await?;
+        Ok(String::from("todo\nprompt.md\nembeddings.json"))
       }
       Err(e) => Err(anyhow!("Error reading .toak-ignore: {}", e)),
     }
   }
 
-  /// Updates .gitignore to include prompt.md and .toak-ignore
+  /// Updates .gitignore to include prompt.md, .toak-ignore, and embeddings.json
   async fn update_gitignore(&self) -> Result<()> {
     let gitignore_path = self.options.dir.join(".gitignore");
 
@@ -379,10 +379,11 @@ impl MarkdownGenerator {
     let lines: Vec<&str> = content.lines().map(|l| l.trim()).collect();
     let needs_prompt_md = !lines.contains(&"prompt.md");
     let needs_toak_ignore = !lines.contains(&".toak-ignore");
+    let needs_embeddings_json = !lines.contains(&"embeddings.json");
 
-    if needs_prompt_md || needs_toak_ignore {
+    if needs_prompt_md || needs_toak_ignore || needs_embeddings_json {
       if self.options.verbose {
-        println!("Updating .gitignore with prompt.md and .toak-ignore");
+        println!("Updating .gitignore with generated files");
       }
 
       let mut new_content = content;
@@ -395,6 +396,9 @@ impl MarkdownGenerator {
       }
       if needs_toak_ignore {
         new_content.push_str(".toak-ignore\n");
+      }
+      if needs_embeddings_json {
+        new_content.push_str("embeddings.json\n");
       }
 
       fs::write(&gitignore_path, new_content).await?;
