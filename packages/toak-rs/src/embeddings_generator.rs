@@ -1,6 +1,11 @@
+//! Utilities for creating semantic embeddings via the `fastembed` crate.
+//! This module powers the embedding generation features that back the JSON database
+//! exporter and any higher level tooling.
 use fastembed::{TextEmbedding, InitOptions, EmbeddingModel};
 use anyhow::Result;
 
+/// A builder around `fastembed::TextEmbedding` that exposes simple helpers
+/// for generating per-text or batch embeddings.
 pub struct EmbeddingsGenerator {
     model: TextEmbedding,
 }
@@ -36,5 +41,3 @@ impl EmbeddingsGenerator {
             .ok_or_else(|| anyhow::anyhow!("Failed to generate embedding"))
     }
 }
-
-

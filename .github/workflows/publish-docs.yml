@@ -1,0 +1,30 @@
+name: Publish Rust Docs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-publish-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build docs for `toak-rs`
+        working-directory: packages/toak-rs
+        run: cargo doc --no-deps --package toak-rs
+
+      - name: Upload generated docs
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: packages/toak-rs/target/doc
+
+      - name: Publish GitHub Pages
+        uses: actions/deploy-pages@v1

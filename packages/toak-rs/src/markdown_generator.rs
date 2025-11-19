@@ -1,3 +1,5 @@
+//! Utilities that turn a repository into a human readable markdown file, handling ignore files
+//! and ensuring the generated artifacts are tracked in `.gitignore`.
 use crate::token_cleaner::{clean_and_redact, count_tokens};
 use anyhow::{anyhow, Result};
 use regex::Regex;
@@ -77,6 +79,7 @@ const DEFAULT_FILE_EXCLUSIONS: &[&str] = &[
   "**/*.log",
 ];
 
+/// Configuration that controls how markdown is generated.
 pub struct MarkdownGeneratorOptions {
   pub dir: PathBuf,
   pub output_file_path: PathBuf,
@@ -103,6 +106,7 @@ impl Default for MarkdownGeneratorOptions {
   }
 }
 
+/// Drives the markdown generation run by walking tracked files, cleaning artifacts, and aggregating text.
 pub struct MarkdownGenerator {
   options: MarkdownGeneratorOptions,
   file_exclusions: Vec<String>,
@@ -407,7 +411,7 @@ impl MarkdownGenerator {
     Ok(())
   }
 
-  /// Creates the complete markdown document
+  /// Creates the complete markdown document that combines code snippets with todo notes.
   pub async fn create_markdown_document(&mut self) -> Result<MarkdownResult> {
     let code_markdown = self.generate_markdown().await?;
     let todos = self.get_todo().await?;
@@ -435,6 +439,7 @@ impl MarkdownGenerator {
   }
 }
 
+/// Result returned after a markdown generation run.
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct MarkdownResult {
