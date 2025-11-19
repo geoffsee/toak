@@ -9,6 +9,7 @@ description = "A high-performance library and CLI tool for tokenizing git reposi
 readme = "README.md"
 keywords = ["repo", "cli", "git", "llm", "embeddings"]
 categories = ["command-line-utilities", "development-tools", "text-processing", "encoding"]
+exclude = ["target/", "embeddings.json", ".claude/"]
 
 [lib]
 name = "toak_rs"
