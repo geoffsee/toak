@@ -1,3 +1,4 @@
+//! Helpers that walk a git repository, chunk the code, and persist embeddings into a JSON database.
 use crate::embeddings_generator::EmbeddingsGenerator;
 use crate::text_chunker::{chunk_text, ChunkerConfig};
 use crate::token_cleaner::clean_and_redact;
@@ -172,7 +173,7 @@ impl JsonDatabaseGenerator {
         }
     }
 
-    /// Generates the JSON database with embeddings
+    /// Generates the JSON database with embeddings and writes it to disk.
     pub async fn generate_database(&self) -> Result<JsonDatabaseResult> {
         let tracked_files = self.get_tracked_files().await?;
 
@@ -272,7 +273,7 @@ impl JsonDatabaseGenerator {
         })
     }
 
-    /// Processes a single file: chunks it and generates embeddings (static version for async tasks)
+    /// Processes a single file by chunking, cleaning, and generating embeddings.
     async fn process_file_static(
         file_path: &Path,
         relative_path: &str,
@@ -344,6 +345,7 @@ impl JsonDatabaseGenerator {
     }
 }
 
+/// Result returned after a generation run.
 #[derive(Debug, Clone)]
 pub struct JsonDatabaseResult {
     pub success: bool,

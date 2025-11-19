@@ -1,3 +1,4 @@
+//! Helpers for slicing strings into token-aware chunks for embeddings and documentation.
 use crate::token_cleaner::count_tokens;
 
 /// Configuration for text chunking

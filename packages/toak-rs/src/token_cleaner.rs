@@ -1,3 +1,4 @@
+//! Utility routines for sanitizing code before chunking/embedding.
 use regex::RegexBuilder;
 use std::sync::OnceLock;
 
