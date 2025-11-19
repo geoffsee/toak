@@ -24,6 +24,6 @@ jobs:
         run: cargo test --release --package toak-rs
 
       - name: Publish to crates.io
-        run: cargo publish --package toak-rs --token ${CARGO_REGISTRY_TOKEN}
+        run: cargo publish --package toak-rs --token ${CARGO_REGISTRY_TOKEN} --allow-dirty
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

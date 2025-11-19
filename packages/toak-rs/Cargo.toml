@@ -7,7 +7,7 @@ repository.workspace = true
 license.workspace = true
 description = "A high-performance library and CLI tool for tokenizing git repositories, cleaning code, and generating embeddings"
 readme = "README.md"
-keywords = ["tokenizer", "git", "cli", "markdown", "llm", "embeddings", "library"]
+keywords = ["repo", "cli", "git", "llm", "embeddings"]
 categories = ["command-line-utilities", "development-tools", "text-processing", "encoding"]
 
 [lib]
