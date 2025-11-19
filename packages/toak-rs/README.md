@@ -6,6 +6,7 @@ A blazing-fast Rust implementation of the `toak` CLI tool for tokenizing git rep
 
 `toak-rs` processes git repository files, cleans code, redacts sensitive information, and generates a `prompt.md` file with token counts. This Rust version provides better performance compared to the TypeScript implementation while maintaining full feature parity.
 
+
 ## Features
 
 - **Fast Processing**: Written in Rust for optimal performance
@@ -35,6 +36,8 @@ cargo install --path .
 ## Usage
 
 ```bash
+# required for automatic downloading of the embeddings models
+export HF_TOKEN=your-huggingface-api-key 
 # Generate prompt.md in current directory
 toak
 

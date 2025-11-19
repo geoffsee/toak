@@ -5,10 +5,14 @@ edition.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
-description = "A fast CLI tool for tokenizing git repositories into markdown files"
+description = "A high-performance library and CLI tool for tokenizing git repositories, cleaning code, and generating embeddings"
 readme = "README.md"
-keywords = ["tokenizer", "git", "cli", "markdown", "llm"]
-categories = ["command-line-utilities", "development-tools"]
+keywords = ["tokenizer", "git", "cli", "markdown", "llm", "embeddings", "library"]
+categories = ["command-line-utilities", "development-tools", "text-processing", "encoding"]
+
+[lib]
+name = "toak_rs"
+path = "src/lib.rs"
 
 [[bin]]
 name = "toak"
