@@ -27,11 +27,19 @@
 //!
 //! // Chunk text for RAG
 //! let chunks = chunk_text("Hello world", &ChunkerConfig::default());
+//!
+//! // Perform semantic search on embeddings
+//! let mut search = SemanticSearch::new("embeddings.json")?;
+//! let results = search.search("find rust code", 5)?;
+//! for result in results {
+//!     println!("{}: {:.4}", result.file_path, result.similarity);
+//! }
 //! ```
 
 pub mod embeddings_generator;
 pub mod json_database_generator;
 pub mod markdown_generator;
+pub mod semantic_search;
 pub mod text_chunker;
 pub mod token_cleaner;
 
@@ -39,6 +47,7 @@ pub mod token_cleaner;
 pub use embeddings_generator::EmbeddingsGenerator;
 pub use json_database_generator::{ChunkMetadata, EmbeddedChunk, EmbeddingsDatabase, JsonDatabaseGenerator, JsonDatabaseOptions, JsonDatabaseResult};
 pub use markdown_generator::{MarkdownGenerator, MarkdownGeneratorOptions, MarkdownResult};
+pub use semantic_search::{EmbeddingChunk, EmbeddingsDatabaseMetadata, SearchResult, SemanticSearch};
 pub use text_chunker::{chunk_text, ChunkerConfig, TextChunk};
 pub use token_cleaner::{clean_and_redact, clean_code, count_tokens, redact_secrets};
 
@@ -51,7 +60,8 @@ pub use token_cleaner::{clean_and_redact, clean_code, count_tokens, redact_secre
 pub mod prelude {
     pub use crate::{
         chunk_text, clean_and_redact, clean_code, count_tokens, redact_secrets, ChunkMetadata, ChunkerConfig,
-        EmbeddedChunk, EmbeddingsDatabase, EmbeddingsGenerator, JsonDatabaseGenerator, JsonDatabaseOptions,
-        JsonDatabaseResult, MarkdownGenerator, MarkdownGeneratorOptions, MarkdownResult, TextChunk,
+        EmbeddedChunk, EmbeddingChunk, EmbeddingsDatabase, EmbeddingsDatabaseMetadata, EmbeddingsGenerator,
+        JsonDatabaseGenerator, JsonDatabaseOptions, JsonDatabaseResult, MarkdownGenerator,
+        MarkdownGeneratorOptions, MarkdownResult, SearchResult, SemanticSearch, TextChunk,
     };
 }
