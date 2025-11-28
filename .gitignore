@@ -8,3 +8,4 @@ todo
 **/*.llamafile
 # releast-it artifact (not used)
 /package-lock.json
+embeddings.json

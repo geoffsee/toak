@@ -108,6 +108,8 @@ fn test_json_database_generator_types() {
         verbose: false,
         chunker_config: Default::default(),
         max_concurrent_files: 4,
+        embedding_pool_size: JsonDatabaseOptions::default().embedding_pool_size,
+        embedding_batch_size: None,
     };
 
     // Verify options construct without error

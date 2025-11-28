@@ -83,6 +83,9 @@ async fn run_generate(
     verbose,
     chunker_config: Default::default(),
     max_concurrent_files: 4, // Process up to 4 files concurrently
+    // Use defaults for embedding pool; override here if desired
+    embedding_pool_size: JsonDatabaseOptions::default().embedding_pool_size,
+    embedding_batch_size: None,
   };
 
   let json_generator = match JsonDatabaseGenerator::new(json_options) {
