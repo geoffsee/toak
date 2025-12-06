@@ -599,24 +599,24 @@ const a = 1;
 
   describe('getRootIgnore', () => {
     it('should create root ignore file if it does not exist', async () => {
-      const rootIgnorePath = path.join('.', '.toak-ignore');
+      const rootIgnorePath = path.join('.', '.aiignore');
 
-      // First call to readFile throws ENOENT, second call resolves to empty string
+      // First call to readFile throws ENOENT, second call resolves to the content we just wrote
       const readFileSpy = spyOn(fs, 'readFile')
         .mockImplementationOnce(() => {
           const error: any = new Error('File not found');
           error.code = 'ENOENT';
           return Promise.reject(error);
         })
-        .mockResolvedValueOnce('');
+        .mockResolvedValueOnce('todo\nprompt.md\nembeddings.json');
 
       // Spy on fs.writeFile
       const writeFileSpy = spyOn(fs, 'writeFile').mockResolvedValue(undefined);
 
       const rootIgnore = await markdownGenerator.getRootIgnore();
       expect(readFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'utf-8');
-      expect(writeFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'todo\nprompt.md');
-      expect(rootIgnore).toBe('');
+      expect(writeFileSpy).toHaveBeenCalledWith(rootIgnorePath, 'todo\nprompt.md\nembeddings.json');
+      expect(rootIgnore).toBe('todo\nprompt.md\nembeddings.json');
 
       // Restore the original implementations
       readFileSpy.mockRestore();
@@ -625,7 +625,7 @@ const a = 1;
   });
 
   describe('updateGitignore', () => {
-    it('should update .gitignore with prompt.md and .toak-ignore on first run', async () => {
+    it('should update .gitignore with prompt.md, todo, and embeddings.json on first run', async () => {
       const gitignorePath = path.join('.', '.gitignore');
 
       // Mock readFile to simulate .gitignore exists but doesn't have the entries
@@ -643,7 +643,7 @@ const a = 1;
       // Verify writeFile was called with correct content
       expect(writeFileSpy).toHaveBeenCalledWith(
         gitignorePath,
-        'node_modules\ndist\nprompt.md\n.toak-ignore\n'
+        'node_modules\ndist\nprompt.md\ntodo\nembeddings.json\n'
       );
 
       // Restore the original implementations
@@ -656,7 +656,7 @@ const a = 1;
 
       // Mock readFile to simulate .gitignore already has the entries
       const readFileSpy = spyOn(fs, 'readFile').mockResolvedValue(
-        'node_modules\ndist\nprompt.md\n.toak-ignore\n'
+        'node_modules\ndist\nprompt.md\ntodo\nembeddings.json\n'
       );
 
       // Spy on fs.writeFile
@@ -696,7 +696,7 @@ const a = 1;
       expect(readFileSpy).toHaveBeenCalledWith(gitignorePath, 'utf-8');
 
       // Verify writeFile was called with correct content
-      expect(writeFileSpy).toHaveBeenCalledWith(gitignorePath, 'prompt.md\n.toak-ignore\n');
+      expect(writeFileSpy).toHaveBeenCalledWith(gitignorePath, 'prompt.md\ntodo\nembeddings.json\n');
 
       // Restore the original implementations
       readFileSpy.mockRestore();

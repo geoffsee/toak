@@ -4,8 +4,7 @@
 dist/
 prompt.md
 todo
-.toak-ignore
+embeddings.json
 **/*.llamafile
 # releast-it artifact (not used)
 /package-lock.json
-embeddings.json

@@ -67,7 +67,7 @@ export class MarkdownGenerator {
   }
 
   /**
-   * Loads and processes .toak-ignore files recursively from the project directory.
+   * Loads and processes .aiignore files recursively from the project directory.
    * These files contain patterns for files to exclude from processing.
    * @async
    * @returns {Promise<void>}
@@ -79,7 +79,7 @@ export class MarkdownGenerator {
         console.log('Loading ignore patterns...');
       }
 
-      const ignoreFiles = await glob('**/.toak-ignore', {
+      const ignoreFiles = await glob('**/.aiignore', {
         cwd: this.dir,
         dot: true,
         absolute: true,
@@ -246,16 +246,28 @@ export class MarkdownGenerator {
   }
 
   async getRootIgnore(): Promise<string> {
-    const rootIgnorePath = path.join(this.dir, '.toak-ignore');
+    const rootIgnorePath = path.join(this.dir, '.aiignore');
     try {
-      return await readFile(rootIgnorePath, 'utf-8');
+      const content = await readFile(rootIgnorePath, 'utf-8');
+      // Ensure prompt.md is in the .aiignore file
+      const lines = content.split('\n').map(l => l.trim());
+      if (!lines.includes('prompt.md')) {
+        let newContent = content;
+        if (newContent && !newContent.endsWith('\n')) {
+          newContent += '\n';
+        }
+        newContent += 'prompt.md\n';
+        await writeFile(rootIgnorePath, newContent);
+        return newContent;
+      }
+      return content;
     } catch (error: any) {
       if (error.code === 'ENOENT') {
         // File does not exist
         if (this.verbose) {
-          console.log("File not found, creating a root '.toak-ignore' file.");
+          console.log("File not found, creating a root '.aiignore' file.");
         }
-        await writeFile(rootIgnorePath, 'todo\nprompt.md'); // Create an empty 'todo' file
+        await writeFile(rootIgnorePath, 'todo\nprompt.md\nembeddings.json');
         return await this.getRootIgnore(); // Await the recursive call
       }
       throw error;
@@ -283,12 +295,13 @@ export class MarkdownGenerator {
       // Check if entries already exist
       const lines = content.split('\n');
       const needsPromptMd = !lines.some(line => line.trim() === 'prompt.md');
-      const needsToakIgnore = !lines.some(line => line.trim() === '.toak-ignore');
+      const needsTodo = !lines.some(line => line.trim() === 'todo');
+      const needsEmbeddingsJson = !lines.some(line => line.trim() === 'embeddings.json');
 
       // Add entries if needed
-      if (needsPromptMd || needsToakIgnore) {
+      if (needsPromptMd || needsTodo || needsEmbeddingsJson) {
         if (this.verbose) {
-          console.log('Updating .gitignore with prompt.md and .toak-ignore');
+          console.log('Updating .gitignore with prompt.md, todo, and embeddings.json');
         }
 
         let newContent = content;
@@ -300,8 +313,12 @@ export class MarkdownGenerator {
           newContent += 'prompt.md\n';
         }
 
-        if (needsToakIgnore) {
-          newContent += '.toak-ignore\n';
+        if (needsTodo) {
+          newContent += 'todo\n';
+        }
+
+        if (needsEmbeddingsJson) {
+          newContent += 'embeddings.json\n';
         }
 
         await writeFile(gitignorePath, newContent);

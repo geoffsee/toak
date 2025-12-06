@@ -13,7 +13,7 @@ A blazing-fast Rust implementation of the `toak` CLI tool for tokenizing git rep
 - **Code Cleaning**: Removes comments, imports, and unnecessary whitespace
 - **Secret Redaction**: Automatically masks API keys, tokens, JWT, hashes, and other sensitive data
 - **Token Counting**: Counts tokens in the generated markdown
-- **Nested Ignore Files**: Supports `.toak-ignore` files at any directory level
+- **Nested Ignore Files**: Supports `.aiignore` files at any directory level
 - **Git Integration**: Works with any git repository
 - **Async I/O**: Non-blocking file operations using Tokio
 
@@ -61,9 +61,9 @@ toak --help
 
 ## Configuration
 
-### .toak-ignore Files
+### .aiignore Files
 
-Create `.toak-ignore` files to exclude patterns from processing. These work similarly to `.gitignore`:
+Create `.aiignore` files to exclude patterns from processing. These work similarly to `.gitignore`:
 
 ```plaintext
 # Ignore specific files
@@ -79,7 +79,7 @@ temp/
 **/._*
 ```
 
-The tool recursively loads `.toak-ignore` files from any directory level.
+The tool recursively loads `.aiignore` files from any directory level.
 
 ## Default Exclusions
 
@@ -112,7 +112,7 @@ The tool automatically excludes:
 4. **Secret Redaction**: Masks sensitive information (API keys, tokens, etc.)
 5. **Token Counting**: Counts tokens in the cleaned content
 6. **Markdown Generation**: Creates a markdown file with all processed files
-7. **Configuration**: Automatically manages `.toak-ignore` and `.gitignore` files
+7. **Configuration**: Automatically manages `.aiignore` and `.gitignore` files
 
 ## Requirements
 

@@ -122,13 +122,13 @@ impl MarkdownGenerator {
     }
   }
 
-  /// Loads nested .toak-ignore files and updates the exclusion patterns
+  /// Loads nested .aiignore files and updates the exclusion patterns
   async fn load_nested_ignore_files(&mut self) -> Result<()> {
     if self.options.verbose {
       println!("Loading ignore patterns...");
     }
 
-    // Find all .toak-ignore files
+    // Find all .aiignore files
     let mut ignore_files = Vec::new();
     self.find_ignore_files(&self.options.dir, &mut ignore_files)?;
 
@@ -180,7 +180,7 @@ impl MarkdownGenerator {
     use walkdir::WalkDir;
 
     for entry in WalkDir::new(dir).into_iter().filter_map(|e| e.ok()) {
-      if entry.file_name() == ".toak-ignore" {
+      if entry.file_name() == ".aiignore" {
         results.push(entry.path().to_path_buf());
       }
     }
@@ -348,24 +348,37 @@ impl MarkdownGenerator {
     }
   }
 
-  /// Gets or creates the root .toak-ignore file
+  /// Gets or creates the root .aiignore file, ensuring prompt.md is included
   async fn get_root_ignore(&self) -> Result<String> {
-    let ignore_path = self.options.dir.join(".toak-ignore");
+    let ignore_path = self.options.dir.join(".aiignore");
 
     match fs::read_to_string(&ignore_path).await {
-      Ok(content) => Ok(content),
+      Ok(content) => {
+        // Ensure prompt.md is in the .aiignore file
+        let lines: Vec<&str> = content.lines().map(|l| l.trim()).collect();
+        if !lines.contains(&"prompt.md") {
+          let mut new_content = content.clone();
+          if !new_content.is_empty() && !new_content.ends_with('\n') {
+            new_content.push('\n');
+          }
+          new_content.push_str("prompt.md\n");
+          fs::write(&ignore_path, &new_content).await?;
+          return Ok(new_content);
+        }
+        Ok(content)
+      }
       Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
         if self.options.verbose {
-          println!("File not found, creating a root '.toak-ignore' file.");
+          println!("File not found, creating a root '.aiignore' file.");
         }
         fs::write(&ignore_path, "todo\nprompt.md\nembeddings.json").await?;
         Ok(String::from("todo\nprompt.md\nembeddings.json"))
       }
-      Err(e) => Err(anyhow!("Error reading .toak-ignore: {}", e)),
+      Err(e) => Err(anyhow!("Error reading .aiignore: {}", e)),
     }
   }
 
-  /// Updates .gitignore to include prompt.md, .toak-ignore, and embeddings.json
+  /// Updates .gitignore to include prompt.md, todo, and embeddings.json
   async fn update_gitignore(&self) -> Result<()> {
     let gitignore_path = self.options.dir.join(".gitignore");
 
@@ -382,10 +395,10 @@ impl MarkdownGenerator {
 
     let lines: Vec<&str> = content.lines().map(|l| l.trim()).collect();
     let needs_prompt_md = !lines.contains(&"prompt.md");
-    let needs_toak_ignore = !lines.contains(&".toak-ignore");
+    let needs_todo = !lines.contains(&"todo");
     let needs_embeddings_json = !lines.contains(&"embeddings.json");
 
-    if needs_prompt_md || needs_toak_ignore || needs_embeddings_json {
+    if needs_prompt_md || needs_todo || needs_embeddings_json {
       if self.options.verbose {
         println!("Updating .gitignore with generated files");
       }
@@ -398,8 +411,8 @@ impl MarkdownGenerator {
       if needs_prompt_md {
         new_content.push_str("prompt.md\n");
       }
-      if needs_toak_ignore {
-        new_content.push_str(".toak-ignore\n");
+      if needs_todo {
+        new_content.push_str("todo\n");
       }
       if needs_embeddings_json {
         new_content.push_str("embeddings.json\n");

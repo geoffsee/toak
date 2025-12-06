@@ -11,7 +11,7 @@ export interface GlobOptions {
 
 /**
  * Simple glob implementation that supports basic ** patterns
- * Specifically designed to replace the glob dependency for .toak-ignore file matching
+ * Specifically designed to replace the glob dependency for .aiignore file matching
  */
 export async function glob(pattern: string, options: GlobOptions = {}): Promise<string[]> {
   const {
@@ -25,7 +25,7 @@ export async function glob(pattern: string, options: GlobOptions = {}): Promise<
   const results: string[] = [];
 
   // Convert glob pattern to regex
-  // For **/.toak-ignore pattern, we want to match .toak-ignore in any directory
+  // For **/.aiignore pattern, we want to match .aiignore in any directory
   const patternParts = pattern.split('/');
   const fileName = patternParts[patternParts.length - 1];
   const hasDoubleStar = patternParts.includes('**');

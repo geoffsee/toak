@@ -43,7 +43,7 @@ toak
 - Removes comments, imports, and unnecessary whitespace
 - Redacts sensitive information (API keys, tokens, JWT, hashes)
 - Counts tokens using llama3-tokenizer-js
-- Supports nested .toak-ignore files
+- Supports nested .aiignore files
 - Removes single-line and multi-line comments
 - Strips console.log statements
 - Removes import statements
@@ -131,9 +131,9 @@ interface MarkdownGeneratorOptions {
 
 ### Ignore File Configuration
 
-Create a `.toak-ignore` file in any directory to specify exclusions. The tool supports nested ignore files that affect their directory and subdirectories.
+Create a `.aiignore` file in any directory to specify exclusions. The tool supports nested ignore files that affect their directory and subdirectories.
 
-Example `.toak-ignore`:
+Example `.aiignore`:
 
 ```plaintext
 # Ignore specific files

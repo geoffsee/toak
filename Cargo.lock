@@ -2594,7 +2594,7 @@ dependencies = [
 
 [[package]]
 name = "toak-rs"
-version = "4.0.10"
+version = "5.0.0"
 dependencies = [
  "anyhow",
  "chrono",
