@@ -1,10 +1,25 @@
 #!/usr/bin/env node
-import type { PresetPrompt } from './prompts';
 
-console.log('RUNNING TOKENIZER');
-import { MarkdownGenerator, type MarkdownGeneratorOptions } from './MarkdownGenerator';
+declare const __VERSION__: string | undefined;
 
 const args = process.argv.slice(2);
+const first = args[0];
+
+const VERSION = (typeof __VERSION__ !== "undefined" && __VERSION__) ? __VERSION__ : "dev";
+
+if (first === "version" || first === "--version" || first === "-V") {
+  console.log(`toak ${VERSION}`);
+  process.exit(0);
+}
+
+
+
+console.log('RUNNING TOKENIZER');
+
+
+import type { PresetPrompt } from './prompts';
+import { MarkdownGenerator, type MarkdownGeneratorOptions } from './MarkdownGenerator';
+
 const options: { prompt?: PresetPrompt } & MarkdownGeneratorOptions = {};
 type ValidArg = keyof MarkdownGeneratorOptions;
 

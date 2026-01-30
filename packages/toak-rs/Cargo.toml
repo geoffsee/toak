@@ -37,3 +37,7 @@ fastembed = {version = "5.2.0", features = ["hf-hub"]}
 # gracefully falls back to CPU EP.
 [target.'cfg(all(target_os = "macos", target_arch = "aarch64"))'.dependencies]
 ort = { version = "2.0.0-rc.10", features = ["coreml"] }
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"

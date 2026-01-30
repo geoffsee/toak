@@ -3,8 +3,11 @@ use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[command(name = "toak")]
-#[command(about = "A CLI tool for tokenizing git repositories and performing semantic search", long_about = None)]
+#[command(
+  name = "toak",
+  about = "A CLI tool for tokenizing git repositories and performing semantic search",
+  version
+)]
 pub struct Args {
   #[command(subcommand)]
   pub command: Commands,
@@ -12,6 +15,8 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
+  /// Print version information
+  Version,
   /// Generate markdown documentation and embeddings database
   Generate {
     /// Project directory to process

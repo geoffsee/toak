@@ -17,6 +17,9 @@ async fn main() {
   let args = Args::parse();
 
   match args.command {
+    Commands::Version => {
+      println!("toak {}", env!("CARGO_PKG_VERSION"));
+    }
     Commands::Generate {
       dir,
       output_file_path,

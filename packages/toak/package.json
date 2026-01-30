@@ -1,11 +1,11 @@
 {
   "name": "toak",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "repository": "https://github.com/geoffsee/toak.git",
   "author": "Geoff Seemueller",
-  "description": "Open-source CLI/Library for tokenizing a git repository into a markdown file.",
+  "description": "CLI and Library for tokenizing entire git repositories into a single markdown file.",
   "keywords": [
     "cli",
     "tool",

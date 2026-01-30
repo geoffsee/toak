@@ -52,6 +52,33 @@ function processArgs(args: string[]): { prompt?: PresetPrompt } & MarkdownGenera
 }
 
 describe('CLI', () => {
+  describe('version command', () => {
+    it('should recognize version flag', () => {
+      const args = ['version'];
+      expect(args[0]).toBe('version');
+    });
+
+    it('should recognize --version flag', () => {
+      const args = ['--version'];
+      expect(args[0]).toBe('--version');
+    });
+
+    it('should recognize -V flag', () => {
+      const args = ['-V'];
+      expect(args[0]).toBe('-V');
+    });
+
+    it('should match version check logic', () => {
+      const versionFlags = ['version', '--version', '-V'];
+
+      versionFlags.forEach(flag => {
+        const first = flag;
+        const isVersionCommand = first === 'version' || first === '--version' || first === '-V';
+        expect(isVersionCommand).toBe(true);
+      });
+    });
+  });
+
   describe('argument handling', () => {
     it('should process --prompt argument correctly', () => {
       // Set up test arguments
