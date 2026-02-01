@@ -5,6 +5,7 @@ edition.workspace = true
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
+description = "OCR engine with Apple Vision framework support for macOS"
 
 build = "build.rs"
 
