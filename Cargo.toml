@@ -1,9 +1,9 @@
 [workspace]
-members = ["packages/toak-rs"]
+members = ["packages/toak-rs", "packages/toak-ocr"]
 resolver = "2"
 
 [workspace.package]
-version = "5.0.1"
+version = "6.0.0"
 authors = ["Geoff Seemueller"]
 edition = "2021"
 repository = "https://github.com/geoffsee/toak"

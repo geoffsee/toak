@@ -1,0 +1,16 @@
+[package]
+name = "toak-ocr"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+
+build = "build.rs"
+
+[dependencies]
+thiserror = "2"
+async-trait = "0.1"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+tokio = { version = "1", features = ["rt", "macros"] }

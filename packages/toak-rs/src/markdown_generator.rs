@@ -9,11 +9,26 @@ use std::process::Command;
 use tokio::fs;
 
 /// Default file type exclusions (by extension)
+/// File types that can be processed via OCR instead of reading as text
+#[cfg(target_os = "macos")]
+const OCR_FILE_TYPES: &[&str] = &[
+  ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff", ".pdf",
+];
+
+/// Default file type exclusions (by extension)
+#[cfg(target_os = "macos")]
 const DEFAULT_FILE_TYPE_EXCLUSIONS: &[&str] = &[
-  ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp", ".tiff", ".ico", ".ttf", ".woff",
-  ".woff2", ".eot", ".otf", ".lock", ".lockb", ".exe", ".dll", ".so", ".dylib", ".bin", ".dat",
-  ".pyc", ".pyo", ".class", ".jar", ".zip", ".tar", ".gz", ".rar", ".7z", ".mp3", ".mp4", ".avi",
-  ".mov", ".wav", ".db", ".sqlite", ".sqlite3",
+  ".svg", ".ico", ".ttf", ".woff", ".woff2", ".eot", ".otf", ".lock", ".lockb", ".exe", ".dll",
+  ".so", ".dylib", ".bin", ".dat", ".pyc", ".pyo", ".class", ".jar", ".zip", ".tar", ".gz",
+  ".rar", ".7z", ".mp3", ".mp4", ".avi", ".mov", ".wav", ".db", ".sqlite", ".sqlite3",
+];
+
+#[cfg(not(target_os = "macos"))]
+const DEFAULT_FILE_TYPE_EXCLUSIONS: &[&str] = &[
+  ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff", ".pdf", ".svg", ".ico", ".ttf",
+  ".woff", ".woff2", ".eot", ".otf", ".lock", ".lockb", ".exe", ".dll", ".so", ".dylib", ".bin",
+  ".dat", ".pyc", ".pyo", ".class", ".jar", ".zip", ".tar", ".gz", ".rar", ".7z", ".mp3", ".mp4",
+  ".avi", ".mov", ".wav", ".db", ".sqlite", ".sqlite3",
 ];
 
 /// Default file pattern exclusions
@@ -283,8 +298,27 @@ impl MarkdownGenerator {
     }
   }
 
-  /// Reads and processes file content
+  /// Checks if a file extension is an OCR-able type
+  #[cfg(target_os = "macos")]
+  fn is_ocr_file(ext: &str) -> bool {
+    OCR_FILE_TYPES.contains(&ext)
+  }
+
+  /// Reads and processes file content, using OCR for supported image/PDF types on macOS
   async fn read_file_content(&self, file_path: &Path) -> Result<String> {
+    #[cfg(target_os = "macos")]
+    {
+      let ext = file_path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|e| format!(".{}", e.to_lowercase()))
+        .unwrap_or_default();
+
+      if Self::is_ocr_file(&ext) {
+        return self.read_file_content_ocr(file_path).await;
+      }
+    }
+
     let content = fs::read_to_string(file_path).await?;
     let cleaned = clean_and_redact(&content);
 
@@ -294,6 +328,26 @@ impl MarkdownGenerator {
     }
 
     Ok(cleaned.trim_end().to_string())
+  }
+
+  /// Reads file content via OCR (macOS only)
+  #[cfg(target_os = "macos")]
+  async fn read_file_content_ocr(&self, file_path: &Path) -> Result<String> {
+    use toak_ocr::{AppleOcrEngine, OcrEngine, OcrInput};
+
+    let engine = AppleOcrEngine::new();
+    let input = OcrInput::FilePath(file_path.to_path_buf());
+    let output = engine
+      .recognize(&input)
+      .await
+      .map_err(|e| anyhow!("OCR failed for {}: {}", file_path.display(), e))?;
+
+    if self.options.verbose && !output.text.is_empty() {
+      let token_count = count_tokens(&output.text);
+      println!("{}: Tokens[{}] (OCR)", file_path.display(), token_count);
+    }
+
+    Ok(output.text.trim_end().to_string())
   }
 
   /// Generates markdown from all tracked files
